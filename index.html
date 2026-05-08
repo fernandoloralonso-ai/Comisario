@@ -1,0 +1,1980 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Comisario PRO">
+<meta name="theme-color" content="#0a0a0c">
+<meta name="description" content="Normativa FIA y RFEDA para comisarios técnicos de seguridad">
+<link rel="manifest" href="manifest.json">
+<title>Comisario Técnico PRO</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=JetBrains+Mono:wght@400;600&family=Barlow:wght@400;500;600&display=swap');
+:root{
+  --red:#E8001D;--red-dim:#7a000d;
+  --dark:#08080f;--panel:#111118;--panel2:#181820;
+  --border:#252535;--border2:#1e1e2e;
+  --text:#dde0f0;--muted:#5a5a7a;--faint:#2a2a3a;
+  --cyan:#00d4ff;--green:#00e676;--amber:#ffab00;
+  --white:#ffffff;--radius:8px;
+  --font-head:'Barlow Condensed',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --font-body:'Barlow',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--dark);color:var(--text);font-family:var(--font-body);display:flex;flex-direction:column;}
+
+/* HEADER */
+#header{background:linear-gradient(90deg,#0f0010,#080810);border-bottom:2px solid var(--red);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;z-index:50;}
+.logo{font-family:var(--font-head);font-size:22px;font-weight:900;letter-spacing:2px;color:var(--white);line-height:1;}
+.logo span{color:var(--red);}
+.sub{font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:1.5px;margin-top:2px;}
+#conn-badge{font-family:var(--font-mono);font-size:9px;padding:3px 8px;border-radius:3px;border:1px solid;letter-spacing:1px;cursor:pointer;transition:all .3s;}
+#conn-badge.online{color:var(--green);border-color:var(--green);background:#001a08;}
+#conn-badge.offline{color:var(--amber);border-color:var(--amber);background:#1a1000;}
+#conn-badge.ai{color:var(--cyan);border-color:var(--cyan);background:#001a20;}
+
+/* TABS */
+#tabs{display:flex;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0;}
+.tab-btn{flex:1;padding:10px 4px;font-family:var(--font-head);font-size:13px;font-weight:700;letter-spacing:1px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:all .15s;}
+.tab-btn .ti{font-size:15px;}
+.tab-btn.active{color:var(--cyan);border-bottom-color:var(--cyan);}
+
+/* MAIN */
+#main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.view{display:none;padding:12px;}
+.view.active{display:block;}
+
+/* LABELS */
+.sec-label{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;}
+
+/* PILLS */
+.pill-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.pill{padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:var(--panel2);color:var(--muted);cursor:pointer;font-size:12px;font-weight:500;transition:all .15s;}
+.pill.active{border-color:var(--red);background:#1a0508;color:var(--red);font-weight:700;}
+
+/* CAT GRID */
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.cat-card{background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;cursor:pointer;transition:all .15s;}
+.cat-card.active{border-color:var(--red);background:#130308;}
+.cc-flag{font-size:20px;margin-bottom:3px;}
+.cc-name{font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--white);letter-spacing:.5px;}
+.cc-org{font-family:var(--font-mono);font-size:9px;color:var(--muted);margin-top:1px;}
+
+/* GROUP */
+.group-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.group-btn{background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .15s;}
+.group-btn.active{border-color:var(--cyan);background:#001a20;}
+.gb-icon{font-size:18px;flex-shrink:0;}
+.gb-name{font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--text);}
+.gb-sub{font-family:var(--font-mono);font-size:9px;color:var(--muted);}
+
+/* CHECKLIST */
+.chk-group{margin-bottom:14px;}
+.chk-group-title{font-family:var(--font-head);font-size:15px;font-weight:700;letter-spacing:1px;color:var(--cyan);padding:5px 10px;background:#020e14;border-left:3px solid var(--cyan);border-radius:0 4px 4px 0;margin-bottom:6px;}
+.chk-item{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:5px;cursor:pointer;transition:all .15s;}
+.chk-item:active{border-color:var(--cyan);background:#020e14;}
+.chk-item.has-ai{border-left:3px solid var(--cyan);}
+.ci-icon{font-size:20px;flex-shrink:0;}
+.ci-text{flex:1;font-size:13px;font-weight:500;line-height:1.3;}
+.ci-badge{font-family:var(--font-mono);font-size:8px;padding:2px 5px;border-radius:3px;flex-shrink:0;}
+.ci-badge.pre{color:var(--green);background:#001a08;border:1px solid #003014;}
+.ci-badge.ai{color:var(--cyan);background:#001520;border:1px solid #003a4a;}
+.ci-arr{color:var(--muted);font-size:16px;flex-shrink:0;}
+
+/* MODAL */
+#modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:200;overflow-y:auto;padding:12px;}
+#modal-overlay.show{display:flex;align-items:flex-start;justify-content:center;}
+#modal{background:var(--panel);border:1px solid var(--border);border-radius:12px;width:100%;max-width:640px;overflow:hidden;animation:up .2s ease;}
+@keyframes up{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+#mhead{background:linear-gradient(135deg,#110018,#080814);border-bottom:1px solid var(--border);padding:14px 16px;}
+.mh-top{display:flex;align-items:flex-start;gap:10px;}
+#m-icon{font-size:26px;flex-shrink:0;}
+.mh-info{flex:1;}
+#m-title{font-family:var(--font-head);font-size:20px;font-weight:700;letter-spacing:.5px;color:var(--white);}
+#m-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;}
+.meta-tag{font-family:var(--font-mono);font-size:9px;padding:3px 7px;border-radius:3px;border:1px solid;letter-spacing:.5px;}
+.meta-tag.cat{color:var(--red);border-color:var(--red-dim);background:#0d0004;}
+.meta-tag.grp{color:var(--cyan);border-color:#003a4a;background:#001520;}
+.meta-tag.src{color:var(--green);border-color:#003a1a;background:#001508;}
+.meta-tag.src.ai-src{color:var(--cyan);border-color:#003a4a;background:#001520;}
+#mcloser{background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer;padding:0;flex-shrink:0;}
+
+#mbody{padding:16px;}
+
+/* LOADING */
+.m-loading{display:flex;flex-direction:column;align-items:center;gap:12px;padding:28px 20px;}
+.spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin .75s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.m-load-txt{font-family:var(--font-mono);font-size:11px;color:var(--muted);text-align:center;line-height:1.7;}
+
+/* ARTICLE */
+.art-card{background:#060610;border:1px solid var(--border2);border-radius:var(--radius);padding:14px;margin-bottom:12px;}
+.art-ref{font-family:var(--font-mono);font-size:11px;color:var(--cyan);background:#002030;border:1px solid #00344a;padding:3px 9px;border-radius:4px;display:inline-block;margin-bottom:8px;}
+.art-title{font-size:15px;font-weight:600;color:var(--white);margin-bottom:8px;line-height:1.3;}
+.art-body{font-size:13px;color:#a0a0c0;line-height:1.75;}
+.homol-box{margin-top:10px;padding:9px 11px;background:#001a08;border:1px solid #00330f;border-radius:6px;}
+.homol-box .hb-l{font-family:var(--font-mono);font-size:9px;color:var(--green);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;}
+.homol-box .hb-t{font-size:13px;color:#a0c0a0;}
+.src-row{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.src-row .sl{font-family:var(--font-mono);font-size:9px;color:var(--muted);}
+.src-row a{font-family:var(--font-mono);font-size:10px;color:var(--cyan);text-decoration:none;}
+
+/* CRITERIA */
+.criteria-block{margin-bottom:10px;}
+.cb-label{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.cb-label.ok{color:var(--green);}
+.cb-label.mal{color:var(--red);}
+.crit-tag{padding:6px 10px;border-radius:5px;font-size:12px;font-weight:500;display:flex;align-items:flex-start;gap:7px;line-height:1.4;margin-bottom:4px;}
+.crit-tag.ok{background:#001a08;border:1px solid #003014;color:#80d080;}
+.crit-tag.mal{background:#180008;border:1px solid #3a001a;color:#d08080;}
+
+/* AI UPGRADE BANNER */
+.ai-banner{background:#001a20;border:1px solid #003a4a;border-radius:var(--radius);padding:10px 12px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.ai-banner .ab-icon{font-size:20px;flex-shrink:0;}
+.ai-banner .ab-txt{font-size:12px;color:#80c0d0;flex:1;line-height:1.5;}
+.ai-banner .ab-btn{background:var(--cyan);color:#000;border:none;padding:7px 13px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;}
+
+/* ERROR */
+.m-error{text-align:center;padding:24px;}
+.m-error .me-icon{font-size:36px;margin-bottom:10px;}
+.m-error p{font-size:13px;color:var(--muted);line-height:1.6;}
+.retry-btn{margin-top:12px;background:var(--red);color:white;border:none;padding:9px 20px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;}
+
+#mfoot{border-top:1px solid var(--border);padding:11px 16px;display:flex;align-items:center;gap:10px;}
+#mf-org{font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--red);}
+#mf-reg{font-family:var(--font-mono);font-size:9px;color:var(--muted);flex:1;}
+.mf-close{background:var(--red);color:white;border:none;padding:8px 18px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;}
+
+/* OFFLINE TAB */
+.offline-stat{background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+.os-icon{font-size:24px;flex-shrink:0;}
+.os-title{font-size:13px;font-weight:600;color:var(--white);}
+.os-sub{font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-top:2px;}
+.os-badge{font-family:var(--font-mono);font-size:11px;padding:4px 9px;border-radius:4px;font-weight:600;flex-shrink:0;}
+.os-badge.ok{color:var(--green);background:#001a08;border:1px solid #003014;}
+.os-badge.builtin{color:var(--amber);background:#1a1000;border:1px solid #3a2000;}
+.action-btn{width:100%;padding:13px;border-radius:var(--radius);border:none;font-family:var(--font-head);font-size:15px;font-weight:700;letter-spacing:1px;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;}
+.action-btn.primary{background:var(--cyan);color:#000;}
+.action-btn.danger{background:var(--red-dim);color:var(--red);border:1px solid var(--red-dim);}
+.action-btn:disabled{opacity:.4;cursor:not-allowed;}
+#update-log{background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;font-family:var(--font-mono);font-size:10px;color:var(--muted);max-height:180px;overflow-y:auto;line-height:1.9;}
+.log-ok{color:var(--green);}
+.log-err{color:var(--red);}
+.log-info{color:var(--cyan);}
+
+/* MISC */
+.no-sel{text-align:center;padding:40px 20px;color:var(--muted);}
+.no-sel .ns-icon{font-size:48px;margin-bottom:14px;}
+.no-sel p{font-size:14px;line-height:1.7;}
+.no-sel strong{color:var(--text);}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--faint);border-radius:2px;}
+/* ── TEXTO OFICIAL TRADUCIDO ── */
+.official-sep{margin:18px 0 14px;display:flex;align-items:center;gap:10px;}
+.official-sep::before,.official-sep::after{content:'';flex:1;height:1px;background:var(--border);}
+.official-sep span{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;white-space:nowrap;}
+.official-box{background:#060610;border:1px solid var(--border2);border-radius:8px;overflow:hidden;margin-bottom:12px;}
+.official-hdr{background:#0c0c1e;padding:9px 12px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:8px;}
+.official-badge{font-family:var(--font-mono);font-size:9px;padding:2px 7px;border-radius:3px;border:1px solid var(--border);color:var(--muted);background:var(--dark);}
+.official-hdr-txt{font-size:11px;font-weight:600;color:#a0a0c0;}
+.official-body{padding:12px;font-size:12px;line-height:1.85;color:#9090b0;}
+.official-body .to-art{font-family:var(--font-head);font-size:15px;font-weight:700;letter-spacing:1px;color:var(--white);display:block;margin:0 0 12px;}
+.official-body .to-sub{font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--cyan);display:block;margin:12px 0 5px;letter-spacing:.5px;}
+.official-body .to-sub:first-of-type{margin-top:0;}
+.official-body p{margin-bottom:8px;}
+.official-body ul{margin:5px 0 8px 16px;}
+.official-body li{margin-bottom:3px;}
+.official-body strong{color:var(--text);}
+.official-body .to-prohibicion{background:#1a0008;border:1px solid #3a0020;border-radius:5px;padding:7px 10px;color:#ff8080;margin-bottom:10px;}
+.official-body .to-alerta{background:#1a1000;border:1px solid #3a2000;border-radius:5px;padding:6px 10px;color:var(--amber);margin:6px 0;}
+.official-body .to-tabla{width:100%;border-collapse:collapse;font-size:11px;margin:8px 0;}
+.official-body .to-tabla th{background:#0f0f20;color:var(--cyan);padding:5px 7px;text-align:left;border:1px solid var(--border);font-size:10px;}
+.official-body .to-tabla td{padding:5px 7px;border:1px solid var(--border2);color:#9090b0;}
+.official-body .to-warn{color:var(--amber);}
+.official-body .to-danger{color:#ff8080;font-weight:600;}
+.official-body .to-ok{color:var(--green);}
+
+/* ── IMAGE GALLERY ── */
+.img-gallery{margin-top:14px;padding-top:12px;border-top:1px solid var(--border);}
+.ig-label{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;color:var(--cyan);text-transform:uppercase;margin-bottom:8px;}
+.img-wrap{margin-bottom:8px;background:#020810;border:1px solid var(--border2);border-radius:6px;overflow:hidden;text-align:center;}
+.img-wrap img{max-width:100%;height:auto;display:block;margin:0 auto;cursor:zoom-in;filter:brightness(1.1) contrast(1.05);}
+
+/* ── IMAGE FULLSCREEN ── */
+#img-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:999;justify-content:center;align-items:center;padding:16px;}
+#img-overlay.show{display:flex;}
+#img-overlay img{max-width:100%;max-height:90vh;object-fit:contain;border-radius:6px;}
+#img-overlay-close{position:absolute;top:16px;right:16px;background:var(--red);color:white;border:none;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div>
+    <div class="logo">COMISARIO <span>TÉCNICO</span> <span style="font-size:13px;color:var(--amber)">PRO</span></div>
+    <div class="sub">FIA · RFEDA · RFMC — 2026</div>
+  </div>
+  <div style="flex:1"></div>
+  <div id="conn-badge" class="online" onclick="goTab('offline')">● ONLINE</div>
+</div>
+
+<div id="tabs">
+  <button class="tab-btn active" onclick="goTab('config')" id="tab-config"><span class="ti">⚙️</span>Config</button>
+  <button class="tab-btn" onclick="goTab('check')" id="tab-check"><span class="ti">✅</span>Checklist</button>
+  <button class="tab-btn" onclick="goTab('offline')" id="tab-offline"><span class="ti">📡</span>Offline</button>
+</div>
+
+<div id="main">
+
+  <!-- CONFIG -->
+  <div class="view active" id="view-config">
+    <div class="sec-label">Organismo regulador</div>
+    <div class="pill-row" id="org-pills"></div>
+    <div class="sec-label" id="cat-lbl" style="display:none">Categoría</div>
+    <div class="cat-grid" id="cat-grid" style="display:none"></div>
+    <div id="grp-section" style="display:none">
+      <div class="sec-label" style="margin-top:10px">Tipo de vehículo / Grupo</div>
+      <div class="group-grid" id="grp-grid"></div>
+    </div>
+  </div>
+
+  <!-- CHECKLIST -->
+  <div class="view" id="view-check">
+    <div id="check-no-sel" class="no-sel">
+      <div class="ns-icon">🏁</div>
+      <p><strong>Configura primero</strong><br>Elige organismo, categoría y grupo en la pestaña Config.</p>
+    </div>
+    <div id="check-content" style="display:none"></div>
+  </div>
+
+  <!-- OFFLINE -->
+  <div class="view" id="view-offline">
+    <div class="sec-label">Estado de la normativa</div>
+    <div id="cache-stats"></div>
+    <div class="sec-label" style="margin-top:14px">Ampliar con IA (requiere conexión)</div>
+    <button class="action-btn primary" id="btn-dl-sel" onclick="downloadSelected()" disabled>📥 Ampliar categoría seleccionada</button>
+    <button class="action-btn danger" onclick="clearAiCache()">🗑️ Borrar normativa ampliada (IA)</button>
+    <div class="sec-label" style="margin-top:12px">Registro</div>
+    <div id="update-log"><span class="log-info">» Sistema listo. Normativa base pre-cargada.</span></div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay" onclick="handleOverlay(event)">
+  <div id="modal">
+    <div id="mhead">
+      <div class="mh-top">
+        <div id="m-icon">🔧</div>
+        <div class="mh-info">
+          <div id="m-title">—</div>
+          <div id="m-meta"></div>
+        </div>
+        <button id="mcloser" onclick="closeModal()">✕</button>
+      </div>
+    </div>
+    <div id="mbody"></div>
+    <div id="mfoot">
+      <div id="mf-org">FIA</div>
+      <div id="mf-reg">—</div>
+      <button class="mf-close" onclick="closeModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// NORMATIVA BASE PRE-CARGADA — FUENTES OFICIALES FIA 2026
+// Art. 253 Apéndice J WMSC 26.03.2026 (publicado 27.03.2026)
+// Art. 283 Apéndice J WMSC 26.03.2026 (Cross-Country)
+// Apéndice L 2026 (publicado 26 marzo 2026)
+// Listas Técnicas FIA: nº 12, 23, 40, 52, 57, 91
+// ══════════════════════════════════════════════════════════════
+const PRELOADED = {
+
+  // ── BAQUET / ASIENTO ─────────────────────────────────────
+  // Art. 253-16 | Listas Técnicas nº 12, 40, 91
+  baquet: {
+    fia_rally: {
+      articulo_principal: 'Art. 253-16',
+      titulo_articulo: 'Asientos de los ocupantes — Homologación FIA',
+      reglamento: 'Apéndice J FIA — Art. 253-16 (WMSC 26.03.2026, publicado 27.03.2026)',
+      requisitos: 'Todos los asientos deben estar homologados FIA (normas 8855-1999, 8855-2021 o 8862-2009) y no modificados. En vehículos de Rally homologados desde 01.01.2022: obligatorio 8855-2021 o 8862-2009 (el 8855-1999 está prohibido). Para todos los vehículos de rally: 8855-1999 prohibido desde 01.01.2027. Límite de uso: 5 años (8855-1999) o 10 años (8855-2021 y 8862-2009) desde fabricación. Materiales añadidos no inflamables (ISO 3795, ≤75 mm/min). Fijación mínimo 4 puntos con pernos M8.',
+      criterios_ok: [
+        'Etiqueta homologación FIA visible: número + fecha fabricación (nº formato AS.XXX.YY)',
+        'Norma correcta para el año de homologación: 8862-2009 u 8855-2021 en vehículos rally desde 01.01.2022',
+        'Dentro del período de validez (5 años 8855-1999 / 10 años 8855-2021 y 8862-2009)',
+        'Situado delante del arceau principal o montante trasero del arceau lateral',
+        'Fijación mediante mínimo 4 puntos con pernos M8 y soportes homologados con el asiento'
+      ],
+      criterios_mal: [
+        'Sin etiqueta de homologación FIA o ilegible',
+        'Asiento 8855-1999 en vehículo de rally homologado desde 01.01.2022 (prohibido)',
+        'Caducado: superado el límite de años desde fabricación',
+        'Modificado respecto a especificación de fábrica',
+        'Soportes (brackets) no homologados específicamente para ese modelo de asiento'
+      ],
+      homologacion: 'FIA 8855-2021 (Lista nº 91) o FIA 8862-2009 (Lista nº 40) para rally desde 2022. FIA 8855-1999 (Lista nº 12) solo en vehículos homologados antes de 01.01.2022 hasta 01.01.2027. Marcas: OMP, RECARO, SPARCO, SABELT, RACETECH, TILLETT, COBRA, entre otras.',
+      articulos_relacionados: 'Art. 253-16.1 (posición), 253-16.2 (anclajes), 253-16.5 (soportes). Listas Técnicas nº 12, 40, 91'
+    },
+    rfeda_rally: {
+      articulo_principal: 'Art. 253-16 / Reglamento RFEDA Rally',
+      titulo_articulo: 'Asiento de seguridad — Rally Nacional RFEDA',
+      reglamento: 'Apéndice J FIA Art. 253-16 (aplicable por referencia en reglamentos RFEDA)',
+      requisitos: 'Idéntico al Art. 253-16 del Apéndice J. En R5/Rally2 y N4: obligatorio 8862-2009 o 8855-2021. En R3/R2: se acepta 8855-1999 hasta 01.01.2027 solo en vehículos homologados antes de 01.01.2022. Piloto Y copiloto deben tener asiento homologado. Los soportes deben ser los homologados con ese modelo de asiento (Listas nº 40 o nº 91).',
+      criterios_ok: [
+        'Homologación FIA visible en piloto Y copiloto',
+        'Norma adecuada al año de homologación del vehículo',
+        'Soportes (brackets) correctos según Lista Técnica nº 40 o nº 91',
+        'Cabeza del piloto dentro de los apoyos laterales de la cabeza del asiento',
+        'Distancia lateral casco-soporte cabeza ≤50 mm si se usan insertos de espuma'
+      ],
+      criterios_mal: [
+        'Copiloto sin asiento homologado FIA',
+        'Soportes de asiento no homologados o incorrectos para ese modelo',
+        'Asiento 8855-1999 en vehículo homologado desde 01.01.2022',
+        'Cabeza del piloto fuera de los límites del soporte lateral de la cabeza',
+        'Inserto de espuma reduciendo soporte lateral por debajo de mínimos (230mm cabeza, 180mm hombro)'
+      ],
+      homologacion: 'FIA 8855-1999 (Lista nº 12), FIA 8855-2021 (Lista nº 91) o FIA 8862-2009 (Lista nº 40). Soportes obligatoriamente homologados con el asiento.',
+      articulos_relacionados: 'Art. 253-16 Apéndice J FIA, Listas Técnicas nº 12, 40 y 91'
+    },
+    default: {
+      articulo_principal: 'Art. 253-16',
+      titulo_articulo: 'Asientos de los ocupantes — Norma general FIA',
+      reglamento: 'Apéndice J FIA — Art. 253-16 (WMSC 26.03.2026)',
+      requisitos: 'Todos los asientos deben estar homologados FIA (normas 8855-1999, 8855-2021 o 8862-2009) y no modificados. Límite de uso: 5 años (8855-1999) o 10 años (8855-2021 y 8862-2009). Materiales añadidos no inflamables. Fijación mínimo 4 puntos con pernos M8.',
+      criterios_ok: [
+        'Etiqueta homologación FIA legible con número y fecha fabricación',
+        'Dentro del período de validez según norma',
+        'Sin modificaciones respecto a especificación de fábrica',
+        'Fijación correcta a 4 puntos mínimo con pernos M8'
+      ],
+      criterios_mal: [
+        'Sin homologación FIA o etiqueta ilegible',
+        'Caducado (superado límite de años)',
+        'Modificado respecto a especificación original',
+        'Materiales inflamables añadidos al asiento homologado'
+      ],
+      homologacion: 'FIA 8855-1999 (Lista nº 12), FIA 8855-2021 (Lista nº 91) o FIA 8862-2009 (Lista nº 40).',
+      articulos_relacionados: 'Art. 253-16 Apéndice J FIA, Listas Técnicas nº 12, 40, 91'
+    }
+  },
+
+  // ── ARNESES ──────────────────────────────────────────────
+  // Art. 253-6 | Lista Técnica nº 57 (8853-2016)
+  arneses: {
+    fia_rally: {
+      articulo_principal: 'Art. 253-6',
+      titulo_articulo: 'Harnais de sécurité / Arneses de seguridad',
+      reglamento: 'Apéndice J FIA — Art. 253-6 (WMSC 26.03.2026, publicado 27.03.2026)',
+      requisitos: 'Obligatorio arnés homologado FIA 8853-2016 (Lista Técnica nº 57). En rally: 2 cortacinturones a bordo accesibles por piloto y copiloto con harnés abrochado. Correas de hombro según Dibujo 253-61-c: ángulo entre correas en planta 10°-25° (rec. 20°-25°). Dispositivos elásticos en correas de hombro: prohibidos. Arnés NO puede fijarse al asiento ni a sus soportes. Sustituir tras toda colisión severa, si está cortado, deshilachado, debilitado por químicos o sol, o si partes metálicas/hebillas están dobladas u oxidadas.',
+      criterios_ok: [
+        'Número de homologación FIA 8853-2016 visible (formato SH.XXX.YY-T-6 o SH.XXX.YY-T-8)',
+        '2 cortacinturones a bordo accesibles con harnés puesto (en rally)',
+        'Correas de hombro NO fijadas al asiento ni a sus soportes',
+        'Correas de entrejambe pasando por las ranuras específicas del asiento',
+        'Sin dispositivos elásticos en correas de hombro'
+      ],
+      criterios_mal: [
+        'Sin homologación FIA 8853-2016 o número ilegible',
+        'Correas cortadas, deshilachadas o manchadas de productos químicos/sol',
+        'Hebillas o partes metálicas dobladas, deformadas u oxidadas',
+        'Arnés fijado al asiento o a sus soportes (expresamente prohibido en Art. 253-6.2)',
+        'Uso tras colisión severa sin sustitución del arnés'
+      ],
+      homologacion: 'FIA 8853-2016 (Lista Técnica nº 57). Marcas vigentes: SABELT, SPARCO, OMP, SCHROTH, TAKATA, WILLANS, LIFELINE, RRS, CORBEAU, ZOO PERFORMANCE, SIMPSON, entre otras. Formato nº: SH.XXX.YY-T-6 (6 puntos) o SH.XXX.YY-T-8 (8 puntos).',
+      articulos_relacionados: 'Art. 253-6.1 (norma 8853-2016), Art. 253-6.2 (instalación y puntos de anclaje), Art. 253-6.3 (uso). Dibujos 253-61-a/b/c/d. Lista Técnica nº 57.'
+    },
+    default: {
+      articulo_principal: 'Art. 253-6',
+      titulo_articulo: 'Arneses de seguridad — Norma general FIA',
+      reglamento: 'Apéndice J FIA — Art. 253-6 (WMSC 26.03.2026)',
+      requisitos: 'Obligatorio arnés homologado FIA 8853-2016 (Lista Técnica nº 57). No fijado al asiento ni sus soportes. Correas de entrejambe por ranuras del asiento. Sin elásticos en correas de hombro. Sustituir tras colisión severa o daño.',
+      criterios_ok: [
+        'Número homologación FIA 8853-2016 visible (formato SH.XXX.YY)',
+        'Estado correcto de correas y hebillas',
+        'No fijado al asiento (prohibido Art. 253-6.2)',
+        'Cortacinturones a bordo en rally'
+      ],
+      criterios_mal: [
+        'Sin homologación FIA 8853-2016',
+        'Correas dañadas o partes metálicas deformadas/oxidadas',
+        'Fijado al asiento (expresamente prohibido)',
+        'Uso tras colisión severa sin sustitución'
+      ],
+      homologacion: 'FIA 8853-2016 (Lista Técnica nº 57). Marcas: SABELT, OMP, SPARCO, SCHROTH, WILLANS, RRS, entre otras.',
+      articulos_relacionados: 'Art. 253-6 Apéndice J FIA, Lista Técnica nº 57'
+    }
+  },
+
+  // ── ESTRUCTURA / JAULA ────────────────────────────────────
+  // Art. 253-8 | Lista Técnica nº 23 (padding 8857-2001)
+  estructura: {
+    fia_rally: {
+      articulo_principal: 'Art. 253-8',
+      titulo_articulo: 'Armadura de seguridad (jaula antivuelco)',
+      reglamento: 'Apéndice J FIA — Art. 253-8 (WMSC 26.03.2026, publicado 27.03.2026)',
+      requisitos: 'La jaula es obligatoria. Los ocupantes deben estar siempre dentro del volumen de la estructura. Puede ser: (a) Homologada o Certificada por una ASN — copia auténtica del documento obligatoria con placa de identificación individual en la jaula, o (b) Homologada por la FIA — incluida en ficha de homologación del vehículo con certificado numerado. Para homologados antes de 01.01.2021: aplica Art. 253-8 Apéndice J 2020. Modificaciones prohibidas; reparaciones tras accidente solo por el fabricante. Tubos de jaula no pueden conducir fluidos. Prohibidos cables eléctricos y canalizaciones de fluidos entre longerones y jaula. Obligatoria protección acolchada FIA 8857-2001 tipo A (Lista nº 23) en todos los tubos del Dibujo 253-68 y en refuerzos de techo.',
+      criterios_ok: [
+        'Copia auténtica del certificado de homologación ASN o FIA presentada a comisarios',
+        'Placa de identificación individual en la jaula, fija (no temporal), conforme al certificado',
+        'Protecciones acolchadas FIA 8857-2001 tipo A en todos los tubos del Dibujo 253-68',
+        'Sin modificaciones (soldaduras, mecanizados) no autorizadas por el fabricante',
+        'Sin cables eléctricos ni canalizaciones de fluidos entre longerones y jaula'
+      ],
+      criterios_mal: [
+        'Sin documentación de homologación (ni ASN ni FIA)',
+        'Placa de identificación ausente, movida o fijada provisionalmente (prohibido)',
+        'Tubos sin protección acolchada FIA 8857-2001 tipo A o padding deteriorado',
+        'Soldaduras de reparación no realizadas ni aprobadas por el fabricante original',
+        'Cromado de la jaula (expresamente prohibido en Art. 253-8.3)'
+      ],
+      homologacion: 'Homologación ASN (copia auténtica + placa individual) o Homologación FIA (ficha del vehículo). Para homologados antes de 01.01.2021: Art. 253-8 del Apéndice J 2020. Padding: FIA 8857-2001 tipo A (Lista Técnica nº 23). Marcas padding: BSCI, SAFETY DEVICES, entre otras.',
+      articulos_relacionados: 'Art. 253-8.1 (generalidades y tipos de homologación), Art. 253-8.2 (definiciones arceau/jaula), Art. 253-8.3 (uso y restricciones). Lista Técnica nº 23. Dibujo 253-68.'
+    },
+    default: {
+      articulo_principal: 'Art. 253-8',
+      titulo_articulo: 'Armadura de seguridad (jaula) — Norma general FIA',
+      reglamento: 'Apéndice J FIA — Art. 253-8 (WMSC 26.03.2026)',
+      requisitos: 'Obligatoria. Homologada ASN o FIA. Documentación y placa obligatorias. Sin modificaciones. Padding FIA 8857-2001 tipo A (Lista nº 23) en tubos del habitáculo. Sin fluidos ni cables entre longerones y jaula. Cromado prohibido.',
+      criterios_ok: [
+        'Documentación homologación presente (ASN o FIA)',
+        'Placa de identificación individual correcta y permanente',
+        'Padding FIA 8857-2001 tipo A en todos los tubos reglamentarios',
+        'Sin reparaciones ni modificaciones no autorizadas'
+      ],
+      criterios_mal: [
+        'Sin documentación de homologación',
+        'Sin placa o placa incorrecta/temporal',
+        'Tubos sin padding o padding deteriorado',
+        'Cromado (prohibido), modificaciones o reparaciones no autorizadas'
+      ],
+      homologacion: 'Homologación ASN o FIA. Padding: FIA 8857-2001 tipo A (Lista Técnica nº 23).',
+      articulos_relacionados: 'Art. 253-8 Apéndice J FIA, Lista Técnica nº 23'
+    }
+  },
+
+  // ── EXTINCIÓN ────────────────────────────────────────────
+  // Art. 253-7 | Listas Técnicas nº 52 (8865-2015) y nº 16
+  extincion: {
+    fia_rally: {
+      articulo_principal: 'Art. 253-7',
+      titulo_articulo: 'Extintores y sistemas de extinción',
+      reglamento: 'Apéndice J FIA — Art. 253-7 (WMSC 26.03.2026, publicado 27.03.2026)',
+      requisitos: 'Agentes BCF y NAF expresamente prohibidos. Sistema FIA 8865-2015 (Lista nº 52) OBLIGATORIO para: WRC/Rally1, Rally2, Rally3/4/5, R-GT. Para otros grupos: recomendado. Cantidad mínima agente extintor manual: AFFF 2,4 L | 4F Universal 2,4 L | Ecolife Plus 2,4 L | FX G-TEC 2 kg | Viro3 2 kg | Novec 1230 2 kg | FK 5-1-12 2 kg | Polvo 2 kg. En rally, sistemas Lista nº 16: mínimo 3 kg. Desde 01.01.2026: ambos extintores manuales compatibles con alta tensión. Fijación: mínimo 2 correas metálicas con tornillo + topes anti-torpedo + resistencia 25g. Activación exterior: letra "E" roja en círculo blanco borde rojo ≥10 cm.',
+      criterios_ok: [
+        'Número homologación FIA 8865-2015 (formato EX.XXX.YY) o Lista nº 16 visible',
+        'Agente extintor permitido y cantidad mínima reglamentaria verificada',
+        'Fecha de verificación/recarga no superior a 2 años',
+        'Fijación con mínimo 2 correas metálicas con tornillo + topes anti-torpedo',
+        'Activación exterior marcada con "E" roja en círculo blanco borde rojo ≥10 cm'
+      ],
+      criterios_mal: [
+        'Sin homologación FIA (no en Lista nº 52 ni nº 16)',
+        'Agente extintor BCF o NAF (expresamente prohibidos por Art. 253-7)',
+        'Recarga/verificación caducada (>2 años desde última verificación)',
+        'Fijación con correas plásticas o sin topes anti-torpedo',
+        'Boquillas apuntando directamente a la cabeza de los ocupantes'
+      ],
+      homologacion: 'FIA 8865-2015 (Lista Técnica nº 52). Marcas: LIFELINE (Zero 362O, ZERO 275), SPA DESIGN, FEV (FX G-TEC), OMP (CESAL4L/4S), SPARCO, entre otras. Norma FIA 1999 (Lista nº 16): FEV, OMP Ecolife, SPARCO FireWarrior.',
+      articulos_relacionados: 'Art. 253-7.1 (aplicación por categoría), Art. 253-7.2 (sistemas instalados), Art. 253-7.3 (extintores manuales y cantidades mínimas). Listas Técnicas nº 16 y nº 52.'
+    },
+    rfeda_rally: {
+      articulo_principal: 'Art. 253-7 / Reglamento RFEDA Rally',
+      titulo_articulo: 'Extinción — Rally Nacional RFEDA',
+      reglamento: 'Apéndice J FIA Art. 253-7 (aplicable por referencia RFEDA)',
+      requisitos: 'Mismo Art. 253-7. Sistema FIA 8865-2015 (Lista nº 52) obligatorio en R5/Rally2 y N4. En R3/R2: extintor portátil con agente permitido y cantidad mínima reglamentaria. Desde 01.01.2026: ambos extintores compatibles con alta tensión. Marcaje exterior "E" roja obligatorio en todos los casos.',
+      criterios_ok: [
+        'Sistema FIA 8865-2015 (Lista nº 52) en R5/Rally2/N4',
+        'Extintor portátil reglamentario en R3/R2 con cantidad mínima',
+        'Marcaje exterior "E" roja en círculo blanco borde rojo visible',
+        'Recarga vigente (≤2 años)',
+        'Desde 01.01.2026: compatibilidad con alta tensión'
+      ],
+      criterios_mal: [
+        'Sin sistema de extinción en R5/Rally2/N4',
+        'Agente CO2 puro sin AFFF (no válido para fuegos de gasolina)',
+        'Sin marcaje exterior "E" roja',
+        'Recarga caducada (>2 años)',
+        'Fijación con correas plásticas (solo se aceptan metálicas)'
+      ],
+      homologacion: 'FIA 8865-2015 (Lista nº 52) para R5/Rally2/N4. Extintor portátil con agente aprobado para R3/R2. BCF y NAF prohibidos.',
+      articulos_relacionados: 'Art. 253-7 Apéndice J FIA, Listas Técnicas nº 52 y nº 16'
+    },
+    default: {
+      articulo_principal: 'Art. 253-7',
+      titulo_articulo: 'Sistema de extinción — Norma general FIA',
+      reglamento: 'Apéndice J FIA — Art. 253-7 (WMSC 26.03.2026)',
+      requisitos: 'Prohibidos BCF y NAF. Sistema FIA 8865-2015 (Lista nº 52) o norma 1999 (Lista nº 16). Cantidad mínima de agente según norma. Recarga ≤2 años. Fijación con correas metálicas + topes anti-torpedo. Marcaje exterior "E" roja.',
+      criterios_ok: [
+        'Homologación FIA Lista nº 52 o nº 16 visible',
+        'Agente y cantidad mínima correctos',
+        'Recarga vigente (≤2 años)',
+        'Fijación metálica correcta con topes anti-torpedo',
+        'Marcaje "E" exterior presente'
+      ],
+      criterios_mal: [
+        'Sin homologación FIA o no en listas vigentes',
+        'BCF o NAF (expresamente prohibidos)',
+        'Recarga caducada',
+        'Fijación plástica o sin topes anti-torpedo',
+        'Sin marcaje "E" exterior'
+      ],
+      homologacion: 'FIA 8865-2015 (Lista nº 52) o norma FIA 1999 (Lista nº 16).',
+      articulos_relacionados: 'Art. 253-7 Apéndice J FIA, Listas Técnicas nº 52 y nº 16'
+    }
+  },
+
+  // ── CORTACORRIENTES ──────────────────────────────────────
+  // Art. 253-13 Apéndice J FIA 2026
+  cortacorrientes: {
+    default: {
+      articulo_principal: 'Art. 253-13',
+      titulo_articulo: 'Coupe-circuit général / Cortacorriente general',
+      reglamento: 'Apéndice J FIA — Art. 253-13 (WMSC 26.03.2026, publicado 27.03.2026)',
+      requisitos: 'Corta TODOS los circuitos eléctricos (batería, alternador/dinamo, luces, bocinas, encendido, controles eléctricos, etc.) y también detiene el motor. Debe ser un modelo antideflagrante. Accesible desde el interior por piloto y copiloto sentados con harnés abrochado, y desde el exterior. Exterior: mando situado obligatoriamente en la parte inferior de un montante del parabrisas (vehículos cerrados). Señalización exterior: rayo rojo en triángulo azul con borde blanco, base mínima 12 cm. Para motores Diesel sin inyectores electrónicos: acoplado a obturador de admisión. Obligatorio en carreras de velocidad en circuito, rally y carreras de montaña.',
+      criterios_ok: [
+        'Señalización correcta: RAYO ROJO en TRIÁNGULO AZUL borde BLANCO, base ≥12 cm',
+        'Situado en la parte inferior de un montante del parabrisas (vehículos cerrados)',
+        'Accesible desde exterior sin herramienta',
+        'Piloto y copiloto pueden accionarlo con harnés abrochado',
+        'Corta TODOS los circuitos incluido alternador y detiene el motor'
+      ],
+      criterios_mal: [
+        'Señalización incorrecta: NO confundir con marcaje del extintor ("E" roja en círculo blanco)',
+        'Señalización ausente o de tamaño insuficiente (<12 cm base)',
+        'No accesible desde exterior del vehículo',
+        'Solo corta el motor pero no todos los circuitos eléctricos',
+        'No antideflagrante o mecanismo deteriorado/bloqueado'
+      ],
+      homologacion: 'Sin homologación específica de producto. El modelo debe ser antideflagrante. Cumplimiento funcional Art. 253-13.',
+      articulos_relacionados: 'Art. 253-13 Apéndice J FIA. ATENCIÓN: el marcaje del cortacorriente (rayo en triángulo azul) es DIFERENTE al del extintor ("E" en círculo blanco). Obligatorio en rally, circuito y montaña.'
+    }
+  },
+
+  // ── DEPÓSITO ─────────────────────────────────────────────
+  // Art. 253-14 Apéndice J FIA 2026 | Nueva norma FIA 8875-2025
+  deposito: {
+    fia_rally: {
+      articulo_principal: 'Art. 253-14',
+      titulo_articulo: 'Réservoirs de carburant de sécurité approuvés — Depósitos FIA',
+      reglamento: 'Apéndice J FIA — Art. 253-14 (WMSC 26.03.2026, publicado 27.03.2026)',
+      requisitos: 'Solo se aceptan depósitos FT3-1999, FT3.5-1999, FT5-1999 o nueva Norma FIA 8875-2025. Marcado obligatorio: norma FIA + nº homologación + fabricante + nº de serie + fecha fin de validez. Para FIA 8875-2025: también grado del depósito y clase de combustible. Ningún depósito puede usarse más de 5 años tras fabricación (ampliable 2 años con recertificación del fabricante). Para FIA 8875-2025: espuma de seguridad OBLIGATORIA. Para FT3/FT3.5/FT5: recomendada. En Grupos N y A: depósito de seguridad FIA obligatorio. Obligatoria tapa estanca no inflamable para verificar fecha de validez sin herramienta.',
+      criterios_ok: [
+        'Marcado FIA visible: norma + nº homologación + nº serie + fecha fin validez',
+        'Dentro del período de validez (máx. 5 años desde fabricación, o 7 con recertificación)',
+        'Tapa estanca de material no inflamable que permite ver fecha de validez',
+        'Depósito FIA 8875-2025: espuma de seguridad instalada (obligatoria)',
+        'Goulotte de relleno: válvula antirretorno FIA (Lista nº 18) si pasa por el habitáculo'
+      ],
+      criterios_mal: [
+        'Sin marcado FIA o fecha de validez superada',
+        'Depósito de serie no homologado en categorías que exigen depósito FIA',
+        'Sin tapa de acceso para verificar fecha de validez',
+        'Depósito FIA 8875-2025 sin espuma de seguridad (obligatoria desde esta norma)',
+        'Goulotte de relleno pasando por habitáculo sin válvula antirretorno FIA (Lista nº 18)'
+      ],
+      homologacion: 'FT3-1999, FT3.5-1999, FT5-1999 (normas clásicas) o FIA Standard 8875-2025 (nueva norma, Lista Técnica nº 94 para centros ensayo). Lista Técnica nº 1 (materiales depósito FT3/FT3.5/FT5). Lista Técnica nº 18 (válvulas antirretorno).',
+      articulos_relacionados: 'Art. 253-14.1 (especificaciones y marcado), Art. 253-14.2 (goulotte de relleno, Grupos N/A y Rally3/4/5), Art. 253-14.3 (instalación, obligatorio desde 01.01.2026 para nuevas homologaciones)'
+    },
+    default: {
+      articulo_principal: 'Art. 253-14',
+      titulo_articulo: 'Depósito de combustible de seguridad FIA',
+      reglamento: 'Apéndice J FIA — Art. 253-14 (WMSC 26.03.2026)',
+      requisitos: 'Solo FT3-1999, FT3.5-1999, FT5-1999 o FIA 8875-2025. Marcado obligatorio con fecha fin validez. Máximo 5 años desde fabricación. Tapa de acceso obligatoria. Para 8875-2025: espuma obligatoria.',
+      criterios_ok: [
+        'Marcado FIA legible con fecha de validez',
+        'Dentro del período de validez',
+        'Tapa de acceso para verificar fecha presente',
+        'Sin fugas ni olores a combustible'
+      ],
+      criterios_mal: [
+        'Sin marcado FIA o fecha de validez superada',
+        'Depósito de serie en categorías que exigen depósito homologado FIA',
+        'Sin tapa de acceso para verificar fecha',
+        'Fugas de combustible visibles'
+      ],
+      homologacion: 'FT3-1999 / FT3.5-1999 / FT5-1999 o FIA 8875-2025. Listas Técnicas nº 1 y nº 94.',
+      articulos_relacionados: 'Art. 253-14 Apéndice J FIA, Listas Técnicas nº 1, 18, 94'
+    }
+  },
+
+  // ── CANALIZACIONES ────────────────────────────────────────
+  // Art. 253-3 Apéndice J FIA 2026
+  canalizaciones: {
+    default: {
+      articulo_principal: 'Art. 253-3',
+      titulo_articulo: 'Canalizaciones, líneas y bombas — Protección',
+      reglamento: 'Apéndice J FIA — Art. 253-3 (WMSC 26.03.2026, publicado 27.03.2026)',
+      requisitos: 'Obligatoria protección de tuberías de combustible, aceite y frenos contra deterioro externo (piedras, corrosión, rotura mecánica) e interno (incendio). Canalizaciones flexibles: raccords roscados, prensados o autobloqueantes + trenzado anti-abrasión y anti-llama. Presiones de rotura mínimas: combustible 70 bar a 135°C | aceite lubricación 70 bar a 232°C | fluido hidráulico a presión 280 bar a 232°C. Agua de refrigeración y aceite: deben estar FUERA del habitáculo. Combustible e hidráulico pueden pasar por habitáculo sin raccords interiores salvo en paredes frontal/trasera (Dibujos 253-59 y 253-60).',
+      criterios_ok: [
+        'Tuberías flexibles de combustible con trenzado anti-abrasión y anti-llama',
+        'Raccords metálicos roscados, prensados o autobloqueantes (no plásticos en circuitos a presión)',
+        'Agua de refrigeración y aceite de lubricación fuera del habitáculo',
+        'Sin raccords ni conexiones de combustible en el interior del habitáculo (salvo paredes)',
+        'Partes metálicas de combustible aisladas eléctricamente conectadas a la carrocería'
+      ],
+      criterios_mal: [
+        'Raccords plásticos en circuito de combustible o hidráulico a presión (prohibidos)',
+        'Tuberías de combustible sin trenzado resistente a llama',
+        'Tuberías de aceite de lubricación o agua de refrigeración dentro del habitáculo',
+        'Raccords o conexiones de combustible en el interior del habitáculo fuera de las paredes frontal/trasera',
+        'Goma de manguera estándar en circuitos de alta presión (frenos, hidráulica)'
+      ],
+      homologacion: 'Sin homologación específica de producto. Materiales deben cumplir especificaciones Art. 253-3.2. Para combustible: 70 bar mín a 135°C. Para hidráulica: 280 bar mín a 232°C.',
+      articulos_relacionados: 'Art. 253-3.1 (protección), Art. 253-3.2 (especificaciones técnicas), Art. 253-3.3 (corte automático combustible — recomendado), Art. 253-3.4 (ventilación depósito). Dibujos 253-59 y 253-60.'
+    }
+  },
+
+  // ── PARABRISAS ───────────────────────────────────────────
+  // Art. 253-11 Apéndice J FIA 2026
+  parabrisas: {
+    fia_rally: {
+      articulo_principal: 'Art. 253-11',
+      titulo_articulo: 'Vitres et filets / Vidrios y redes',
+      reglamento: 'Apéndice J FIA — Art. 253-11 (WMSC 26.03.2026, publicado 27.03.2026)',
+      requisitos: 'Parabrisas: vidrio laminado certificado para uso vial (marcado homologación visible). Puede llevar película transparente incolora máx. 400 micras (exterior) y banda parasol si permite ver señalización. En RALLY: obligatorio film anti-astillas transparente e incoloro (máx. 100 micras) en ventanillas laterales y techo corredizo, salvo que sean de policarbonato. Ventanillas traseras y techo: pueden usar films plateados o ahumados con apertura ≥70 mm de diámetro. En CIRCUITO: obligatoria red fijada a la jaula cubriendo ventanilla hasta centro del volante (banda mín. 19 mm, malla 25x25 mm mín., 60x60 mm máx.).',
+      criterios_ok: [
+        'Parabrisas de vidrio laminado con marcado de homologación vial visible',
+        'Film anti-astillas en ventanillas laterales en rally (máx. 100 micras, transparente)',
+        'Sin fisuras que afecten la zona de visión del piloto',
+        'Limpiaparabrisas operativo',
+        'Sin objetos ni pegatinas obstruyendo la zona de visión del piloto'
+      ],
+      criterios_mal: [
+        'Parabrisas sin marcado de homologación de uso vial',
+        'Sin film anti-astillas en ventanillas laterales en rally (Art. 253-11.1.1)',
+        'Film ahumado en ventanillas laterales traseras sin apertura ≥70 mm de diámetro',
+        'Fisura que atraviese o afecte la zona de visión del conductor',
+        'Limpiaparabrisas inoperativo'
+      ],
+      homologacion: 'Vidrio laminado certificado para uso vial (marcado ECE R43 o equivalente). Film anti-astillas: máx. 100 micras, sin homologación FIA específica. Red de circuito: malla 25-60 mm, bandas ≥19 mm.',
+      articulos_relacionados: 'Art. 253-11.1 (vidrios y condiciones), Art. 253-11.1.1 (rally: film anti-astillas obligatorio), Art. 253-11.2 (redes en circuito: dimensiones)'
+    },
+    default: {
+      articulo_principal: 'Art. 253-11',
+      titulo_articulo: 'Parabrisas o red metálica — Norma general FIA',
+      reglamento: 'Apéndice J FIA — Art. 253-11 (WMSC 26.03.2026)',
+      requisitos: 'Parabrisas de vidrio laminado certificado para uso vial. Film anti-astillas obligatorio en rally (ventanillas laterales, máx. 100 micras). Sin fisuras en zona de visión. Limpias operativo. En circuito: red homologada.',
+      criterios_ok: [
+        'Vidrio laminado con marcado homologación vial',
+        'Film anti-astillas en rally (ventanillas laterales)',
+        'Sin fisuras en zona visión piloto',
+        'Limpias operativo'
+      ],
+      criterios_mal: [
+        'Sin homologación de uso vial en parabrisas',
+        'Sin film anti-astillas en rally',
+        'Fisura en zona de visión del conductor',
+        'Limpiaparabrisas inoperativo'
+      ],
+      homologacion: 'Vidrio laminado ECE R43 o equivalente.',
+      articulos_relacionados: 'Art. 253-11 Apéndice J FIA'
+    }
+  },
+
+  // ── BATERÍA ───────────────────────────────────────────────
+  // Art. 253-12 / Art. 253-13 Apéndice J FIA 2026
+  bateria: {
+    default: {
+      articulo_principal: 'Art. 253-12 / Art. 253-13',
+      titulo_articulo: 'Fijación y protección de batería',
+      reglamento: 'Apéndice J FIA — Arts. 253-12 y 253-13 (WMSC 26.03.2026)',
+      requisitos: 'La batería debe estar firmemente fijada impidiendo desplazamiento en accidente o vuelco. Si está en el habitáculo: caja estanca de material no conductor. Terminales protegidos contra cortocircuito. El cortacorriente (Art. 253-13) debe cortar también el alternador. Para vehículos eléctricos e híbridos: requisitos adicionales del Art. 253-18 y Art. 266-C del Apéndice J. Cables protegidos y alejados de fuentes de calor.',
+      criterios_ok: [
+        'Batería fijada con sistema metálico resistente que impida desplazamiento en vuelco',
+        'Terminales cubiertos contra cortocircuito accidental',
+        'Si en habitáculo: caja estanca de material no conductor',
+        'Cables protegidos y alejados de partes calientes y móviles',
+        'Sin pérdidas de electrolito visibles'
+      ],
+      criterios_mal: [
+        'Batería sujeta solo con brida de plástico o sin sujeción adecuada',
+        'Terminales al descubierto (riesgo de cortocircuito)',
+        'Pérdida de electrolito o ácido visible',
+        'Cables de batería rozando partes calientes o móviles',
+        'En habitáculo sin caja estanca de material no conductor'
+      ],
+      homologacion: 'Sin homologación específica de producto. Cumplimiento funcional Arts. 253-12 y 253-13.',
+      articulos_relacionados: 'Art. 253-12 (fijación y protección), Art. 253-13 (cortacorriente), Art. 253-18 (vehículos eléctricos/híbridos), Art. 266-C Apéndice J FIA'
+    }
+  },
+
+  // ── ANILLAS DE REMOLQUE ──────────────────────────────────
+  // Art. 253-10 Apéndice J FIA 2026
+  anillas: {
+    default: {
+      articulo_principal: 'Art. 253-10',
+      titulo_articulo: 'Anneau de prise en remorque / Argolla de remolque',
+      reglamento: 'Apéndice J FIA — Art. 253-10 (WMSC 26.03.2026, publicado 27.03.2026)',
+      requisitos: 'Obligatoria argolla de remolque delantera Y trasera en todos los vehículos para todas las competiciones. Solo para uso cuando el vehículo pueda rodar libremente. Deben ser claramente visibles y pintadas en AMARILLO, ROJO u NARANJA.',
+      criterios_ok: [
+        'Argolla delantera presente, visible, pintada en amarillo/rojo/naranja',
+        'Argolla trasera presente, visible, pintada en amarillo/rojo/naranja',
+        'Accesibles para equipos de rescate',
+        'Sin deformaciones que impidan el uso'
+      ],
+      criterios_mal: [
+        'Falta argolla delantera o trasera (obligatorias ambas)',
+        'Sin pintar en color reglamentario (amarillo, rojo u naranja)',
+        'Argolla oculta por carrocería o inaccesible sin herramienta',
+        'Deformada o con daños estructurales'
+      ],
+      homologacion: 'Sin homologación específica. Cumplimiento Art. 253-10: visibles y pintadas en amarillo, rojo u naranja.',
+      articulos_relacionados: 'Art. 253-10 Apéndice J FIA. Verificar también marcaje del cortacorriente (Art. 253-13) y extinción (Art. 253-7) en el exterior.'
+    }
+  },
+
+  // ── LUZ DE POLVO / FRENO TRASERO ─────────────────────────
+  // Art. 253-15 Apéndice J FIA 2026 + Reglamento Deportivo Rally
+  luz_polvo: {
+    fia_rally: {
+      articulo_principal: 'Art. 253-15 / Reglamento Deportivo Rally FIA',
+      titulo_articulo: 'Luz trasera de posición — Luz de polvo',
+      reglamento: 'Apéndice J FIA Art. 253 + Reglamento Deportivo Rally FIA 2026',
+      requisitos: 'Obligatoria luz roja trasera adicional de potencia suficiente (mínimo equivalente a 21W), visible en condiciones adversas (polvo, lluvia, niebla). Debe funcionar independientemente del pedal de freno, mediante interruptor propio accesible para el piloto. En tramos nocturnos: se añaden requisitos de iluminación del Reglamento Particular.',
+      criterios_ok: [
+        'Luz roja trasera presente y operativa',
+        'Potencia suficiente (≥21W equiv.) visible en condiciones de polvo/lluvia',
+        'Interruptor propio accesible para el piloto desde su posición normal',
+        'Funciona independientemente del pedal de freno'
+      ],
+      criterios_mal: [
+        'Luz ausente o inoperativa',
+        'Solo funciona al pisar el freno (sin interruptor propio)',
+        'Potencia insuficiente para condiciones adversas',
+        'Interruptor inaccesible para el piloto con harnés puesto'
+      ],
+      homologacion: 'Sin homologación específica de producto. Cumplimiento funcional.',
+      articulos_relacionados: 'Art. 253-15 Apéndice J FIA, Reglamento Particular de la prueba'
+    },
+    default: {
+      articulo_principal: 'Art. 253-15',
+      titulo_articulo: 'Luz trasera (polvo/freno)',
+      reglamento: 'Apéndice J FIA — Art. 253-15',
+      requisitos: 'Luz roja trasera operativa, visible en condiciones adversas, con interruptor propio accesible al piloto, funcionando independientemente del freno.',
+      criterios_ok: ['Operativa y visible en condiciones adversas', 'Potencia suficiente (≥21W equiv.)', 'Interruptor propio accesible', 'Independiente del pedal de freno'],
+      criterios_mal: ['Inoperativa o ausente', 'Solo funciona al pisar el freno', 'Sin interruptor propio', 'Potencia insuficiente'],
+      homologacion: 'Sin homologación específica.',
+      articulos_relacionados: 'Art. 253-15 Apéndice J FIA'
+    }
+  },
+
+  // ── CIERRES DE SEGURIDAD ─────────────────────────────────
+  // Art. 253-5 Apéndice J FIA 2026
+  cierres: {
+    default: {
+      articulo_principal: 'Art. 253-5',
+      titulo_articulo: 'Fixations supplémentaires / Fijaciones adicionales de capós',
+      reglamento: 'Apéndice J FIA — Art. 253-5 (WMSC 26.03.2026, publicado 27.03.2026)',
+      requisitos: 'Mínimo 2 fijaciones de seguridad adicionales para CADA capó (motor y maletero). Los cierres originales deben quedar inutilizados o retirados. Los objetos importantes transportados a bordo (rueda de repuesto, maletín de herramientas, etc.) deben estar firmemente fijados. Obligatorio en todos los grupos excepto N (donde es optativo).',
+      criterios_ok: [
+        'Mínimo 2 fijaciones adicionales metálicas en capó delantero',
+        'Mínimo 2 fijaciones adicionales metálicas en capó trasero/maletero',
+        'Cierres originales inutilizados o retirados',
+        'Objetos de gran tamaño a bordo correctamente fijados (rueda, herramientas)'
+      ],
+      criterios_mal: [
+        'Solo 1 fijación adicional (mínimo reglamentario son 2 por capó)',
+        'Fijaciones de plástico o no metálicas',
+        'Cierre original activo sin inutilizar junto a las fijaciones adicionales',
+        'Rueda de repuesto u objetos pesados sin fijar correctamente'
+      ],
+      homologacion: 'Sin homologación específica. Material metálico. Cumplimiento funcional Art. 253-5.',
+      articulos_relacionados: 'Art. 253-5 Apéndice J FIA. En Grupo N es optativo; en todos los demás grupos es OBLIGATORIO.'
+    }
+  },
+
+  // ── DIRECCIÓN ────────────────────────────────────────────
+  // Art. 253-4 Apéndice J FIA 2026
+  direccion: {
+    default: {
+      articulo_principal: 'Art. 253-4',
+      titulo_articulo: 'Sécurité des systèmes de freinage et de direction',
+      reglamento: 'Apéndice J FIA — Art. 253-4 (WMSC 26.03.2026)',
+      requisitos: 'El sistema de bloqueo antirrobo de la dirección puede ser inutilizado. El sistema de regulación de la columna debe estar bloqueado y solo ajustable con herramienta. En Cross-Country (Art. 283): el volante debe ser desmontable mediante quick-release con muñón concéntrico al eje del volante, de color amarillo, situado detrás del volante en la columna. Liberación tirando del muñón. Zona de acolchado CF45M (Lista nº 17), espesor mínimo 40 mm, superficie mínima 200 cm², para proteger la cara del piloto.',
+      criterios_ok: [
+        'Sistema de regulación de columna bloqueado (no ajustable a mano)',
+        'Sin juego excesivo en rótulas y terminales de dirección',
+        'Quick-release operativo y de color amarillo (en Cross-Country)',
+        'Acolchado del volante (CF45M, ≥40mm, ≥200cm²) en Cross-Country'
+      ],
+      criterios_mal: [
+        'Columna ajustable sin herramienta (regulación no bloqueada)',
+        'Juego excesivo en cremallera, rótulas o terminales',
+        'Quick-release no amarillo o no concéntrico al eje (Cross-Country)',
+        'Sin acolchado del volante en Cross-Country'
+      ],
+      homologacion: 'Quick-release: sin homologación FIA específica pero debe ser concéntrico, amarillo y funcional. Acolchado: CF45M (Lista Técnica nº 17) en Cross-Country.',
+      articulos_relacionados: 'Art. 253-4 (freinage et direction), Art. 283-4.2.1 (volant Cross-Country), Lista Técnica nº 17'
+    }
+  },
+
+  // ── ACELERADOR ───────────────────────────────────────────
+  // Art. 253-4 Apéndice J FIA 2026
+  acelerador: {
+    default: {
+      articulo_principal: 'Art. 253-4.3',
+      titulo_articulo: 'Acelerador / Muelle recuperador',
+      reglamento: 'Apéndice J FIA — Art. 253-4 (WMSC 26.03.2026)',
+      requisitos: 'El pedal de acelerador debe retornar solo a la posición de cerrado al soltar el pie, independientemente del sistema del cuerpo de mariposa. En vehículos con acelerador electrónico (throttle-by-wire): debe existir sistema de seguridad que garantice el cierre. El recorrido del pedal no debe estar obstruido por alfombrilla, tubos u otros elementos.',
+      criterios_ok: [
+        'Pedal retorna solo a posición de reposo al soltar (muelle recuperador operativo)',
+        'Recorrido del pedal completamente libre de obstáculos',
+        'Sin alfombrilla ni elementos obstruyendo el recorrido del acelerador',
+        'En DBW: sistema de cierre de seguridad presente'
+      ],
+      criterios_mal: [
+        'Pedal que NO retorna solo al soltar el pie',
+        'Recorrido del pedal parcialmente obstruido',
+        'Muelle recuperador roto, ausente o débil',
+        'Alfombrilla atrapando el pedal del acelerador'
+      ],
+      homologacion: 'Sin homologación específica. Verificación funcional.',
+      articulos_relacionados: 'Art. 253-4 Apéndice J FIA'
+    }
+  },
+
+  // ── NÚMERO ───────────────────────────────────────────────
+  numero: {
+    default: {
+      articulo_principal: 'Reglamento Particular de la prueba',
+      titulo_articulo: 'Colocación del número de competición',
+      reglamento: 'Reglamento Particular + Reglamento Deportivo FIA/RFEDA 2026',
+      requisitos: 'El número debe figurar en las posiciones indicadas en el Reglamento Particular (normalmente ambas puertas delanteras y capó/frontal). Dimensiones, tipografía y colores: los especificados por la organización. Debe ser legible a distancia y no estar cubierto. Tipografía: la entregada o aprobada por la organización. Incumplimiento puede conllevar sanción deportiva.',
+      criterios_ok: [
+        'Número visible en todas las posiciones reglamentarias',
+        'Tipografía, tamaño y colores conformes al Reglamento Particular',
+        'Sin obstáculos que impidan la lectura (barro, pegatinas propias)',
+        'Número correspondiente a la prueba actual'
+      ],
+      criterios_mal: [
+        'Número ausente en alguna posición reglamentaria',
+        'Tipografía, tamaño o color incorrecto',
+        'Número cubierto parcialmente por barro o publicidad propia',
+        'Número de otra prueba no retirado'
+      ],
+      homologacion: 'Según Reglamento Particular de la prueba.',
+      articulos_relacionados: 'Reglamento Particular de la prueba, Reglamento Deportivo FIA/RFEDA'
+    }
+  },
+
+  // ── PUBLICIDAD OBLIGATORIA ───────────────────────────────
+  publicidad: {
+    default: {
+      articulo_principal: 'Reglamento Particular — Publicidad',
+      titulo_articulo: 'Publicidad obligatoria de la organización',
+      reglamento: 'Reglamento Particular de la prueba 2026',
+      requisitos: 'Los adhesivos de los patrocinadores oficiales deben colocarse en las posiciones y tamaños especificados (entregados en verificaciones). Prioridad sobre publicidad propia del equipo. No pueden estar cubiertos, recortados, doblados ni modificados.',
+      criterios_ok: [
+        'Todos los adhesivos oficiales colocados y en posición correcta',
+        'Sin publicidad propia solapando la oficial',
+        'Adhesivos íntegros, sin arrugas ni despegados',
+        'Orientación correcta'
+      ],
+      criterios_mal: [
+        'Adhesivos oficiales ausentes o cubiertos',
+        'Publicidad propia sobre la oficial',
+        'Adhesivos parcialmente despegados o deteriorados',
+        'Posición u orientación incorrecta'
+      ],
+      homologacion: 'Según Reglamento Particular de la prueba.',
+      articulos_relacionados: 'Reglamento Particular, Reglamento Deportivo FIA/RFEDA'
+    }
+  },
+
+  // ── CÁMARA ON-BOARD ──────────────────────────────────────
+  // Art. 253-2 (rally) / Art. 283-2 (cross-country) Apéndice J FIA 2026
+  onboard: {
+    default: {
+      articulo_principal: 'Art. 253-2 / Art. 283-2',
+      titulo_articulo: 'Cámara on-board',
+      reglamento: 'Apéndice J FIA Art. 253-2 y 283-2 (WMSC 26.03.2026)',
+      requisitos: 'Cuando sea obligatoria: instalada ANTES de las verificaciones técnicas. No debe sobresalir de la carrocería. En el habitáculo: prohibida entre el plano del punto más trasero del salpicadero y el plano del punto más trasero de los asientos. Fijaciones: solo por tornillo, collarín metálico, pinza express o insertos metálicos. PROHIBIDO: pegamento, doble cara, adhesivo, ventosa. Fijación debe resistir deceleración mínima de 25g. No debe obstaculizar la visibilidad del equipo ni su extracción en emergencia.',
+      criterios_ok: [
+        'Instalada antes de verificaciones técnicas',
+        'No sobresale de la superficie de carrocería',
+        'Fijación metálica (tornillo/collarín) resistente a 25g',
+        'No obstruye visibilidad ni salida de emergencia del equipo'
+      ],
+      criterios_mal: [
+        'Cámara ausente cuando es obligatoria por el Reglamento Particular',
+        'Fijada con adhesivo, doble cara o ventosa (expresamente prohibido)',
+        'Instalada en zona prohibida entre salpicadero y asientos en el habitáculo',
+        'Obstruye la visibilidad del piloto o la salida de emergencia'
+      ],
+      homologacion: 'Sin homologación FIA específica salvo indicación del Reglamento Particular. Fijación debe resistir 25g.',
+      articulos_relacionados: 'Art. 253-2 Apéndice J FIA (rally), Art. 283-2 (cross-country), Reglamento Particular de la prueba'
+    }
+  },
+
+  // ── RESTO ELEMENTOS (carrocería, habitáculo, etc.) ───────
+  limpias: { default: {
+    articulo_principal:'Art. 253-11.1', titulo_articulo:'Limpiaparabrisas',
+    reglamento:'Apéndice J FIA — Art. 253-11 (WMSC 26.03.2026)',
+    requisitos:'El limpiaparabrisas debe estar operativo limpiando la zona de visión del piloto. Obligatorio en rally por condiciones de lluvia y barro.',
+    criterios_ok:['Operativo a la velocidad de limpieza','Goma en buen estado que limpia correctamente','Limpia la zona de visión del piloto'],
+    criterios_mal:['Inoperativo','Goma deteriorada que no limpia','Motor averiado o mecanismo bloqueado'],
+    homologacion:'Sin homologación. Verificación funcional.', articulos_relacionados:'Art. 253-11 Apéndice J FIA'
+  }},
+  puertas: { default: {
+    articulo_principal:'Art. 253-5', titulo_articulo:'Puertas, aletas y capó',
+    reglamento:'Apéndice J FIA — Art. 253-5 (WMSC 26.03.2026)',
+    requisitos:'Puertas y capós deben abrir y cerrar correctamente. Los capós deben tener mínimo 2 fijaciones adicionales metálicas con los cierres originales inutilizados (Art. 253-5). Las aletas y puertas no deben presentar aristas vivas. Los paneles deben estar correctamente fijados sin riesgo de desprendimiento.',
+    criterios_ok:['Puertas cierran correctamente','Capó con 2+ fijaciones adicionales metálicas','Sin aristas vivas en aletas','Paneles firmemente fijados'],
+    criterios_mal:['Puerta que no cierra o cierra con holgura excesiva','Capó sin fijaciones adicionales o con fijaciones plásticas','Aleta con aristas vivas peligrosas','Panel suelto con riesgo de desprendimiento'],
+    homologacion:'Sin homologación específica.', articulos_relacionados:'Art. 253-5 Apéndice J FIA'
+  }},
+  faldones: { default: {
+    articulo_principal:'Reglamento Técnico de Categoría (Art. 253-2 / ficha homologación)',
+    titulo_articulo:'Faldones laterales',
+    reglamento:'Reglamento Técnico FIA/RFEDA de Categoría + Apéndice J Art. 253-2',
+    requisitos:'Los faldones deben estar presentes si forman parte de la homologación del vehículo. No deben estar sueltos ni presentar riesgo de desprendimiento. Sus dimensiones deben ser conformes al reglamento técnico y a la ficha de homologación.',
+    criterios_ok:['Presentes si son parte de la homologación del vehículo','Fijados correctamente sin holgura','Dimensiones conformes a la ficha de homologación'],
+    criterios_mal:['Ausentes si son parte obligatoria de la homologación','Sueltos o con riesgo de desprendimiento en competición','Fuera de dimensiones de homologación'],
+    homologacion:'Según ficha de homologación del vehículo.', articulos_relacionados:'Ficha técnica del modelo, Art. 253-2 Apéndice J FIA'
+  }},
+  paragolpes: { default: {
+    articulo_principal:'Art. 253-2 / Reglamento Técnico de Categoría',
+    titulo_articulo:'Paragolpes / Calandra delantera',
+    reglamento:'Apéndice J FIA Art. 253-2 + Reglamento de Categoría',
+    requisitos:'El paragolpes debe corresponder a la homologación del vehículo. Sin aristas vivas. La calandra no debe estar obstruida (ventilación del radiador). El skid plate o protección inferior delantera debe estar correctamente fijado.',
+    criterios_ok:['Paragolpes conforme a homologación del vehículo','Sin aristas vivas','Calandra sin obstrucciones','Skid plate correctamente fijado'],
+    criterios_mal:['Paragolpes no homologado para el vehículo','Aristas vivas que puedan lesionar a intervenciones de rescate','Skid plate suelto o parcialmente desprendido'],
+    homologacion:'Según ficha de homologación del modelo.', articulos_relacionados:'Ficha técnica, Art. 253-2 Apéndice J FIA'
+  }},
+  ala_post: { default: {
+    articulo_principal:'Reglamento Técnico de Categoría (aerodinámica)',
+    titulo_articulo:'Ala posterior / Alerón trasero',
+    reglamento:'Reglamento Técnico FIA/RFEDA de Categoría',
+    requisitos:'El ala trasera debe ser la homologada para el modelo y categoría. Dimensiones dentro de límites reglamentarios. Fijación rígida sin juego. Sin aristas vivas ni elementos punzantes.',
+    criterios_ok:['Ala homologada dentro de dimensiones reglamentarias','Fijación rígida sin juego','Sin aristas vivas ni elementos punzantes','Ángulo de ataque dentro de lo permitido'],
+    criterios_mal:['Ala no homologada o fuera de dimensiones','Fijación con juego o inestable en competición','Aristas vivas o elementos punzantes'],
+    homologacion:'Según ficha de homologación del vehículo.', articulos_relacionados:'Reglamento técnico de categoría, Art. 253-2 Apéndice J FIA'
+  }},
+  bajos: { default: {
+    articulo_principal:'Art. 253-2 / Reglamento Técnico de Categoría',
+    titulo_articulo:'Protecciones bajos laterales',
+    reglamento:'Apéndice J FIA Art. 253-2 + Reglamento de Categoría',
+    requisitos:'Los protectores de bajos (sideskirts y skid plates) deben estar presentes si son parte de la homologación. En rally protegen el depósito y sistema de frenos. Fijación segura.',
+    criterios_ok:['Presentes si son requeridos por homologación','Fijación segura sin posibilidad de desprendimiento','Sin daños que comprometan la protección'],
+    criterios_mal:['Ausentes si son obligatorios por homologación','Sueltos o parcialmente desprendidos','Dañados por impacto sin reparar'],
+    homologacion:'Según ficha de homologación.', articulos_relacionados:'Art. 253-2 Apéndice J FIA, ficha técnica del modelo'
+  }},
+  salpicadero: { default: {
+    articulo_principal:'Art. 253-4.4 (habitáculo)',
+    titulo_articulo:'Salpicadero / Panel de instrumentos',
+    reglamento:'Apéndice J FIA — Art. 253-4 (WMSC 26.03.2026)',
+    requisitos:'Sin elementos que puedan lesionar al ocupante en caso de impacto. Instrumentos correctamente fijados. Sin cables sueltos. Acceso al exterior no obstruido.',
+    criterios_ok:['Sin aristas ni elementos punzantes en salpicadero','Instrumentos y pantallas fijados correctamente','Sin cables sueltos con riesgo de enganche','Acceso al exterior del piloto no obstruido'],
+    criterios_mal:['Aristas vivas o elementos punzantes','Instrumentos sueltos que puedan proyectarse en impacto','Cables sin fijar con riesgo de enganche en extracción'],
+    homologacion:'Sin homologación específica.', articulos_relacionados:'Art. 253-4 Apéndice J FIA'
+  }},
+  cuentarevs: { default: {
+    articulo_principal:'Reglamento Técnico de Categoría',
+    titulo_articulo:'Cuentarrevoluciones',
+    reglamento:'Reglamento Técnico FIA/RFEDA de Categoría',
+    requisitos:'El cuentarrevoluciones es obligatorio en las categorías que lo requieren reglamentariamente. Debe estar correctamente fijado y ser legible por el piloto desde su posición de conducción normal.',
+    criterios_ok:['Presente si es obligatorio en la categoría','Legible desde la posición normal del piloto','Correctamente fijado sin riesgo de proyección'],
+    criterios_mal:['Ausente si es requerido por el reglamento de categoría','Ilegible o roto','Montaje inseguro con riesgo de proyección en impacto'],
+    homologacion:'Según reglamento de categoría.', articulos_relacionados:'Reglamento técnico de categoría'
+  }},
+  paneles: { default: {
+    articulo_principal:'Art. 253-4.4 / Art. 253-15 (aislamiento)',
+    titulo_articulo:'Paneles habitáculo',
+    reglamento:'Apéndice J FIA — Art. 253-4 (WMSC 26.03.2026)',
+    requisitos:'Paneles del habitáculo correctamente fijados. Sin huecos que permitan entrada de gases de escape o combustible. Paneles ignífugos en zonas próximas al motor y al depósito.',
+    criterios_ok:['Sin huecos que comuniquen habitáculo con motor/depósito','Material ignífugo en zonas de riesgo (motor, depósito)','Paneles fijados sin elementos sueltos'],
+    criterios_mal:['Huecos que comunican habitáculo con motor o zona del depósito','Material inflamable en zonas de riesgo','Paneles sueltos que puedan moverse o desprenderse'],
+    homologacion:'Sin homologación específica.', articulos_relacionados:'Art. 253-4 Apéndice J FIA'
+  }},
+  aislamiento: { default: {
+    articulo_principal:'Art. 253-15 (Art. 253-4.5)',
+    titulo_articulo:'Aislamiento del habitáculo / Cortafuegos',
+    reglamento:'Apéndice J FIA — Art. 253 (WMSC 26.03.2026)',
+    requisitos:'El habitáculo debe estar aislado del motor y del escape para evitar entrada de gases tóxicos (monóxido de carbono) y calor excesivo. Todos los pasos de tuberías y cables que atraviesen el cortafuegos deben estar sellados. Pantalla de protección eficaz entre motor y asiento de los ocupantes para evitar proyección directa de llamas (Art. 253-15).',
+    criterios_ok:['Cortafuegos estanco sin huecos visibles','Pasos de cables y tuberías sellados','Sin entrada de gases de escape o olor a combustible en habitáculo','Pantalla antiincendio entre motor y habitáculo'],
+    criterios_mal:['Huecos en el cortafuegos motor/habitáculo','Pasos de cable sin sellar','Olor a escape en el habitáculo','Sin pantalla de protección entre motor y zona ocupantes'],
+    homologacion:'Sin homologación. Verificación funcional.', articulos_relacionados:'Art. 253-4 y Art. 253-15 Apéndice J FIA'
+  }},
+  tunel: { default: {
+    articulo_principal:'Art. 253-4.6',
+    titulo_articulo:'Túnel de transmisión',
+    reglamento:'Apéndice J FIA — Art. 253-4 (WMSC 26.03.2026)',
+    requisitos:'El túnel de transmisión debe estar cubierto por panel de material resistente que evite el contacto de los ocupantes con la transmisión en caso de rotura. Material resistente al calor. En vehículos 4x4 es especialmente importante por las temperaturas generadas.',
+    criterios_ok:['Cubierta del túnel presente y correctamente fijada','Material resistente al calor','Sin huecos que expongan la transmisión'],
+    criterios_mal:['Cubierta ausente o con huecos que exponen la transmisión','Material inflamable directamente sobre la transmisión','Panel suelto o con posibilidad de moverse en accidente'],
+    homologacion:'Sin homologación específica.', articulos_relacionados:'Art. 253-4 Apéndice J FIA'
+  }}
+};
+
+
+// ══════════════════════════════════════════════════════════════
+// CONFIGURACIÓN — Pon aquí tu API key de Anthropic
+// Obtén una en: https://console.anthropic.com
+// ══════════════════════════════════════════════════════════════
+const API_KEY = 'PON-AQUI-TU-API-KEY';
+
+// Diagramas FIA — ficheros separados en /img/
+const IMG_DATA={
+direccion:["img/dir_01.jpg"],
+arneses:["img/arn_01.jpg","img/arn_02.jpg"],
+canalizaciones:["img/can_01.jpg"],
+baquet:["img/baq_01.jpg","img/baq_02.jpg","img/baq_03.jpg"],
+estructura:["img/str_01.jpg","img/str_02.jpg","img/str_03.jpg","img/str_04.jpg"],
+extincion:["img/ext_01.jpg"],
+};
+
+// ══════════════════════════════════════════════════════════════
+// TRADUCCIONES OFICIALES LITERALES — Art. 253 Apéndice J FIA
+// WMSC 26.03.2026 — Publicado 27.03.2026
+// Traducción completa al castellano, sin omisiones
+// ══════════════════════════════════════════════════════════════
+
+const TEXTO_OFICIAL = {
+
+// ══ ART.1 ══
+canalizaciones: `
+<span class="to-art">ART. 1 — SEGURIDAD GENERAL</span>
+<p>Un vehículo cuya construcción parezca presentar peligros puede ser excluido por los Comisarios Deportivos de la competición.</p>
+<span class="to-art">ART. 2 — DISPOSITIVOS OPCIONALES / CÁMARAS</span>
+<p>Si un dispositivo es facultativo, debe montarse de forma conforme a los reglamentos.</p>
+<p><strong>Cámaras en Rally:</strong> Si el competidor desea utilizar cámaras a bordo, su instalación debe respetar los siguientes requisitos:</p>
+<ul>
+<li>No deben sobresalir de la superficie de la carrocería.</li>
+<li>En el habitáculo, las cámaras (incluyendo sus fijaciones) están prohibidas entre el plano vertical transversal que pasa por el punto más trasero del salpicadero y el plano vertical transversal del punto más trasero de los asientos piloto/copiloto.</li>
+<li>Las fijaciones deben realizarse únicamente mediante tornillos, collarín metálico con tornillo, abrazadera de apriete rápido o insertos metálicos. <strong>Prohibido:</strong> pegamento, doble cara, adhesivo, ventosa, etc.</li>
+<li>Las fijaciones deben poder resistir una deceleración mínima de 25 g.</li>
+<li>Debe estar instalada antes de las verificaciones técnicas.</li>
+<li>La cámara no debe dificultar la visibilidad del equipo, su salida o extracción del vehículo en caso de urgencia.</li>
+</ul>
+<span class="to-art">ART. 3 — CANALIZACIONES Y BOMBAS</span>
+<span class="to-sub">3.1 Protección</span>
+<p>Las tuberías de gasolina, aceite y las canalizaciones del sistema de frenado deben estar protegidas exteriormente contra todo riesgo de deterioro (piedras, corrosión, rotura mecánica, etc.) e interiormente contra todo riesgo de incendio y deterioro.</p>
+<p><strong>Aplicación:</strong> Facultativo para el Grupo N si se conserva el montaje original. Obligatorio para todos los Grupos si el montaje de serie no se conserva o si las canalizaciones pasan por el interior del vehículo y se han retirado los revestimientos que las protegen. En el caso de las canalizaciones de combustible, las partes metálicas aisladas de la carrocería del vehículo mediante piezas/partes no conductoras deben estar conectadas eléctricamente a ella.</p>
+<span class="to-sub">3.2 Especificaciones e instalación</span>
+<p>Aplicación obligatoria si no se conserva el montaje original. Las canalizaciones de agua de refrigeración o de aceite de lubricación deben ser exteriores al habitáculo. Los montajes de las canalizaciones de combustible, aceite de lubricación y de las que contienen fluido hidráulico a presión deben fabricarse conforme a las especificaciones siguientes:</p>
+<ul>
+<li>Si son flexibles, estas canalizaciones deben tener raccords roscados, prensados o autobloqueantes y una trenzado exterior resistente a la abrasión y a la llama (que no mantenga la combustión).</li>
+<li>La presión mínima de rotura medida a una temperatura mínima de funcionamiento es de:
+  <ul>
+    <li><strong>70 bar (1000 psi) a 135°C (250°F)</strong> para las canalizaciones de combustible (excepto las conexiones a los inyectores y el radiador de refrigeración en el circuito de retorno al depósito)</li>
+    <li><strong>70 bar (1000 psi) a 232°C (450°F)</strong> para las canalizaciones de aceite de lubricación</li>
+    <li><strong>280 bar (4000 psi) a 232°C (450°F)</strong> para las canalizaciones que contienen fluido hidráulico a presión</li>
+  </ul>
+</li>
+<li>Si la presión de funcionamiento de un sistema hidráulico es superior a 140 bar (2000 psi), la presión de rotura debe ser al menos el doble.</li>
+</ul>
+<p>Las canalizaciones de combustible y de fluido hidráulico pueden pasar por el habitáculo, pero sin presentar raccords o conexiones salvo en las paredes delantera y trasera según los Dibujos 253-59 y 253-60, y salvo en el circuito de frenos y el circuito de líquido de embrague.</p>
+<span class="to-sub">3.3 Corte automático de combustible</span>
+<p><strong>Recomendado</strong> para todos los Grupos: todas las canalizaciones de alimentación de combustible que van al motor deben estar equipadas con válvulas de corte automático situadas directamente en el depósito de combustible, que cierren automáticamente todas las canalizaciones de combustible a presión si una de ellas se rompe o tiene una fuga.</p>
+<p><strong>Obligatorio:</strong> Todas las bombas de combustible deben funcionar únicamente cuando el motor está en marcha, excepto durante el arranque.</p>
+<span class="to-sub">3.4 Ventilación del depósito de combustible</span>
+<p>El tubo de ventilación del depósito de combustible hasta las válvulas descritas a continuación debe tener las mismas especificaciones que las canalizaciones de combustible (Artículo 3.2) y debe estar equipado con un sistema que comprenda los siguientes elementos:</p>
+<ul>
+<li>Válvula antivuelco activada por gravedad</li>
+<li>Válvula de ventilación de cámara de flotador</li>
+<li>Válvula de sobrepresión tarada a una presión máxima de 200 mbar, que funciona cuando la válvula de flotador está cerrada</li>
+</ul>
+<p>Si el diámetro interior del tubo de ventilación del depósito de combustible es superior a 20 mm, debe montarse un clapet antirretorno homologado por la FIA tal como se define en el Artículo 253-14.2.</p>
+`,
+
+// ══ ART.4 ══
+acelerador: `
+<span class="to-art">ART. 4 — SEGURIDAD DE LOS SISTEMAS DE FRENADO Y DIRECCIÓN</span>
+<span class="to-sub">Frenado</span>
+<p>Doble circuito accionado por el mismo pedal: la acción del pedal debe ejercerse normalmente sobre todas las ruedas; en caso de fuga en cualquier punto de la canalización o de cualquier fallo en la transmisión del freno, la acción del pedal debe continuar ejerciéndose al menos sobre dos ruedas.</p>
+<p><strong>Aplicación:</strong> Si este sistema está montado en serie, no es necesaria ninguna modificación.</p>
+<span class="to-sub">Dirección</span>
+<p>El sistema de bloqueo del antirrobo de dirección puede ser inutilizado. El sistema de regulación de la columna debe estar bloqueado y ser ajustable únicamente mediante herramientas.</p>
+`,
+
+// ══ ART.5 ══
+cierres: `
+<span class="to-art">ART. 5 — FIJACIONES ADICIONALES</span>
+<p>Deben instalarse al menos <strong>dos fijaciones de seguridad adicionales</strong> para cada uno de los capós (motor y maletero). Los cierres originales deben ser inutilizados o suprimidos.</p>
+<p><strong>Aplicación:</strong> Facultativo para el Grupo N; obligatorio para los otros Grupos.</p>
+<p>Los objetos importantes transportados a bordo del vehículo (tales como rueda de repuesto, maletín de herramientas, etc.) deben estar solidamente fijados.</p>
+`,
+
+// ══ ART.9 ══
+direccion: `
+<span class="to-art">ART. 9 — RETROVISIÓN</span>
+<p>La visión hacia atrás debe asegurarse mediante dos retrovisores exteriores (uno en el lado derecho y uno en el lado izquierdo). Estos retrovisores pueden ser los de serie.</p>
+<p>Cada retrovisor debe tener una superficie reflectante de al menos <strong>90 cm²</strong>. El retrovisor interior es facultativo.</p>
+<p><strong>Aplicación:</strong> Grupos N, A, R (o Rally5/4/3/2), R-GT, Super 2000 Rallyes y WRC.</p>
+<p>En el cuerpo del retrovisor se autoriza una abertura de ventilación (superficie máxima de 25 cm² por retrovisor). La puerta puede modificarse en el punto de fijación del retrovisor para realizar una abertura equivalente de 25 cm² máximo.</p>
+<p><strong>Aplicación:</strong> Solo en rallye, Grupos N, A, R (o Rally5/4/3/2), R-GT, Super 2000 Rallyes y WRC.</p>
+`,
+
+// ══ ART.10 ══
+anillas: `
+<span class="to-art">ART. 10 — ARGOLLA DE REMOLQUE</span>
+<p>Todos los vehículos deben estar equipados con una argolla de remolque <strong>delantera y trasera</strong> para todas las competiciones.</p>
+<p>Esta argolla sólo se utilizará en el caso de un vehículo que pueda rodar libremente.</p>
+<p>Debe ser <strong>claramente visible</strong> y estar pintada en <strong>amarillo, rojo o naranja</strong>.</p>
+`,
+
+// ══ ART.11 ══
+parabrisas: `
+<span class="to-art">ART. 11 — VIDRIOS Y REDES</span>
+<span class="to-sub">11.1 Vidrios</span>
+<p>Los vidrios deben estar certificados para uso vial, siendo su marcado prueba de ello. Para los vehículos de 4 o 5 puertas, puede montarse una pieza intermedia entre la parte superior del vidrio y la parte superior de la abertura de la ventana de la puerta trasera, siempre que no tenga otra función que la de ventilar el habitáculo y no sobresalga de la superficie exterior del vidrio.</p>
+<p>El parabrisas debe estar constituido de <strong>vidrio laminado</strong>. Puede equiparse con uno o varios films transparentes (espesor total máximo de 400 micras) e incoloros en su superficie exterior, salvo si esto está prohibido por la reglamentación vial del/de los país/es recorridos durante la competición. Se autoriza una banda parasol para el parabrisas, siempre que permita a los ocupantes ver la señalización vial (semáforos, señales...).</p>
+<p>Se autoriza el uso de vidrios tintados y/o films de seguridad para las ventanillas laterales y trasera. En tal caso, una persona situada a 5 m del vehículo debe poder ver al piloto y el contenido del interior del vehículo.</p>
+<span class="to-sub">11.1.1 En rallye únicamente</span>
+<p>El uso de <strong>films antiastillas transparentes e incoloros</strong> (espesor máximo: 100 micras) es <strong>obligatorio</strong> en las ventanillas laterales y de techo corredizo, salvo si son de policarbonato.</p>
+<p>Las ventanillas laterales traseras y la del techo corredizo pueden utilizar films plateados o ahumados (véase condiciones a continuación) en sustitución de los films antiastillas transparentes e incoloros.</p>
+<p>El uso de films plateados o ahumados está autorizado, en las ventanillas laterales traseras, la luneta trasera y la del techo corredizo, y en las siguientes condiciones:</p>
+<ul>
+<li>Los films plateados o tintados utilizados en las ventanillas laterales traseras deben tener una apertura de una superficie equivalente a la de un círculo de <strong>70 mm de diámetro</strong> para poder ver desde el exterior al piloto y el contenido del vehículo.</li>
+<li>La mención de la autorización debe hacerse constar en el reglamento particular de la competición.</li>
+</ul>
+<span class="to-sub">11.2 Redes</span>
+<p>Para las competiciones en circuito, es <strong>obligatorio</strong> el uso de redes fijadas a la armadura de seguridad. Estas redes deben tener las siguientes características:</p>
+<ul>
+<li>Anchura mínima de banda: <strong>19 mm</strong></li>
+<li>Dimensión mínima de las mallas: <strong>25 × 25 mm</strong></li>
+<li>Dimensión máxima de las mallas: <strong>60 × 60 mm</strong></li>
+</ul>
+<p>Y deben cubrir la apertura de la ventanilla hasta el centro del volante.</p>
+<span class="to-sub">ART. 12 — FIJACIONES DE SEGURIDAD PARA PARABRISAS</span>
+<p>Tales fijaciones pueden utilizarse libremente.</p>
+<p><strong>Aplicación:</strong> Grupos N, A.</p>
+`,
+
+// ══ ART.14 ══
+deposito: `
+<span class="to-art">ART. 14 — DEPÓSITOS DE COMBUSTIBLE DE SEGURIDAD APROBADOS POR LA FIA</span>
+<span class="to-sub">14.1 Especificaciones FT3-1999, FT3.5-1999 o FT5-1999 y Norma FIA 8875-2025</span>
+<p>Solo estas especificaciones son aceptadas por la FIA. Las especificaciones técnicas de estos depósitos están disponibles en la FIA previa solicitud.</p>
+<span class="to-sub">14.1.1 Marcado y validez de los depósitos</span>
+<p>Cada depósito de seguridad debe llevar un marcado con las siguientes indicaciones:</p>
+<p><strong>Para FT3-1999, FT3.5-1999 o FT5-1999:</strong></p>
+<ul>
+<li>Nombre de la norma FIA</li>
+<li>Número de homologación FIA</li>
+<li>Nombre del fabricante</li>
+<li>Número de serie</li>
+<li>Fecha de fin de validez</li>
+</ul>
+<p><strong>Para Norma FIA 8875-2025:</strong></p>
+<ul>
+<li>Nombre de la norma FIA</li>
+<li>Grado del depósito</li>
+<li>Clase del combustible</li>
+<li>Nombre del fabricante</li>
+<li>Número de serie</li>
+<li>Número de homologación FIA</li>
+<li>Fecha de fin de validez</li>
+</ul>
+<p class="to-alerta">Ningún depósito puede utilizarse más de <strong>5 años</strong> después de su fecha de fabricación, a menos que haya sido verificado y recertificado por el fabricante para un período adicional de como máximo <strong>2 años</strong>.</p>
+<p>Debe instalarse en la protección de los depósitos una tapa estanca, de material no inflamable, fácilmente accesible y desmontable únicamente con herramientas, con el fin de permitir la verificación de la fecha de fin de validez.</p>
+<span class="to-sub">14.1.2 Aplicación de estas especificaciones</span>
+<ul>
+<li><strong>Vehículos Grupo N y Grupo A:</strong> Deben estar equipados con un depósito de seguridad FT3-1999, FT3.5-1999 o FT5-1999, o con un depósito conforme a la Norma FIA 8875-2025.</li>
+<li><strong>Vehículos de otros Grupos:</strong> Véase el reglamento técnico del Grupo correspondiente.</li>
+<li><strong>Para todos los vehículos:</strong> El uso de espuma de seguridad en los depósitos FT3-1999, FT3.5-1999 o FT5-1999 se recomienda. El uso de espuma de seguridad en los depósitos de combustible de seguridad conformes a la norma FIA 8875-2025 es <strong>obligatorio</strong>, salvo dispensa específica concedida por la FIA en los Reglamentos Técnicos de una categoría particular.</li>
+</ul>
+<span class="to-sub">14.2 Depósitos con goulotte (tubo de llenado)</span>
+<p><strong>Aplicación:</strong> Grupos A y N; Grupos R1, R2, R3; Grupos Rally5, Rally4, Rally3.</p>
+<p>Todos los vehículos equipados con un depósito con tubo de llenado que atraviese el habitáculo deben estar equipados con un <strong>clapet antirretorno homologado por la FIA</strong> (Lista Técnica nº 18). Este clapet de tipo "clapet de uno o dos batientes" debe instalarse en el tubo de llenado en el lado del depósito.</p>
+<p>El tubo de llenado se define como el medio utilizado para conectar el orificio de llenado de combustible del vehículo con el propio depósito de combustible.</p>
+<span class="to-sub">14.3 Instalación</span>
+<p><strong>Obligatorio</strong> para los vehículos homologados a partir del 01.01.2026. <strong>Recomendado</strong> para todos los vehículos.</p>
+<p>Ninguna parte del depósito de combustible, incluidas sus bridas, debe fijarse de forma rígida al caisson en el que está contenido; las fijaciones deben diseñarse de tal forma que si el depósito de combustible se extrae del caisson, la fijación se rompa sin comprometer la integridad del depósito.</p>
+<span class="to-sub">ART. 15 — PROTECCIÓN CONTRA EL INCENDIO</span>
+<p>Debe colocarse una pantalla de protección eficaz entre el motor y el asiento de los ocupantes para evitar la proyección directa de llamas en caso de incendio. Si esta pantalla está constituida por los asientos traseros, se recomienda guarnecerlos con un revestimiento ignífugo.</p>
+`,
+
+// ══ ART.6 (arneses) - ya existente ══
+arneses: `
+<span class="to-art">ART. 6 — ARNESES DE SEGURIDAD</span>
+<span class="to-sub">6.1 Arneses de seguridad</span>
+<span class="to-sub">6.1.1 Arneses conformes a la norma FIA 8853-2016</span>
+<p>Obligatorios.</p>
+<span class="to-sub">6.1.2</span>
+<p>Además, los arneses utilizados en carreras en circuito deben estar equipados con un sistema de apertura por hebilla giratoria. En rallyes, dos cortacinturones deben estar permanentemente a bordo. Deben ser fácilmente accesibles para el piloto y el copiloto sentados en sus asientos con los arneses abrochados. Por el contrario, se recomienda que, para las competiciones que incluyan tramos en carretera abierta, estos sistemas de apertura sean de tipo pulsador.</p>
+<span class="to-sub">6.2 Instalación</span>
+<p><strong>Está prohibido fijar los arneses de seguridad a los asientos o a sus soportes.</strong> Debe evitarse que las correas puedan desgastarse rozando contra aristas vivas.</p>
+<span class="to-sub">6.2.1 Correas de entrejambe</span>
+<p>Deben pasar a través de las aperturas específicas para correas de entrejambe del asiento. Los ángulos de instalación recomendados se especifican en el Dibujo 253-61-a.</p>
+<span class="to-sub">6.2.2 Correas abdominales</span>
+<p>No deben pasar por encima de los laterales del asiento, sino a través del asiento, de manera que rodeen y retengan la región pélvica sobre la mayor superficie posible. Deben ajustarse con precisión en el hueco entre la cresta ilíaca y la parte superior del muslo y no deben apoyar sobre la región abdominal. Los ángulos de instalación recomendados se representan mediante la zona verde del Dibujo 253-61-b.</p>
+<span class="to-sub">6.2.3 Correas de hombro</span>
+<p>Deben instalarse de conformidad con los Dibujos 253-61-c y 253-61-d.</p>
+<p><strong>Dibujo 253-61-c:</strong> El punto de rotación del anclaje de la correa debe situarse en la zona verde. Cuando la correa se fija a un tubo de refuerzo transversal mediante un lazo, el centro de la sección del tubo se considera el punto de rotación. Ninguna parte rígida del sistema de anclaje del arnés (incluido el dispositivo de ajuste de tres barras) ni ninguna correa enrollada debe entrar en contacto con el asiento ni sobresalir en el interior de las aberturas del asiento cuando el piloto (copiloto) está abrochado. El ángulo de la correa de hombro respecto a la horizontal se mide tomando como referencia la parte superior del hombro del piloto (copiloto) o la parte superior de la superficie de apoyo de la correa en el dispositivo de Retención Frontal de la Cabeza (RFC).</p>
+<p><strong>Dibujo 253-61-d:</strong> Los puntos de anclaje de las correas de hombro deben ser simétricos respecto al plano vertical y longitudinal que pasa por el eje del asiento. Visto desde arriba, el ángulo entre las correas no debe estar fuera del rango <strong>10°-25°</strong> y se recomienda que sea de aproximadamente <strong>20°-25°</strong>. Las correas pueden tocarse o incluso cruzarse una sobre otra si es necesario. Es importante asegurarse de que las fijaciones de las correas de hombro no puedan deslizarse lateralmente.</p>
+<span class="to-sub">6.2.4 Puntos de anclaje</span>
+<span class="to-sub">6.2.4.1</span>
+<p>Un arnés de seguridad puede instalarse sobre los puntos de anclaje del vehículo de serie. Si el montaje sobre los anclajes de serie resulta imposible para las correas de hombro y/o entrejambe, deben instalarse nuevos puntos de anclaje en la carrocería o el chasis.</p>
+<p>Puntos de anclaje en el chasis/monocasco homologados por las ASN: pueden utilizarse y su diseño es libre. El certificado de homologación debe acreditar que su resistencia cumple el Art. 253-6.2.4.3 y debe mencionar la norma FIA para la que han sido homologados los arneses. Esto debe demostrarse mediante ensayos de carga estática o prueba aritmética (realizados por una empresa aprobada por la ASN o incluida en la Lista Técnica FIA nº 4 o nº 35 respectivamente). Bajo estas cargas, el nivel de tensión de los materiales de los componentes del vehículo solicitados debe permanecer por debajo de sus respectivos límites de rotura. Además, ninguna pieza debe sufrir un fallo estructural una vez liberado el esfuerzo.</p>
+<span class="to-sub">6.2.4.2 Fijaciones en el chasis/monocasco</span>
+<ul>
+<li>1) Sistema de fijación general: Dibujo 253-62.</li>
+<li>2) Sistema de fijación para las correas de hombro: Dibujo 253-63. Las correas de hombro también pueden fijarse a la armadura de seguridad o a una barra de refuerzo transversal mediante un lazo y también pueden fijarse a los puntos de anclaje superiores de los cinturones traseros, o apoyarse o fijarse en un refuerzo transversal soldado entre los refuerzos traseros de la armadura (véase Dibujo 253-66). En este caso, el refuerzo transversal debe ser un tubo de al menos <strong>38 mm × 2,5 mm o 40 mm × 2 mm</strong> en acero al carbono estirado en frío sin soldadura, resistencia mínima a la tracción de <strong>350 N/mm²</strong>.</li>
+<li>3) Sistema de fijación de la correa de entrejambe: Dibujo 253-64.</li>
+</ul>
+<span class="to-sub">6.2.4.3 Resistencia de los puntos de anclaje</span>
+<p>Cada nuevo punto de anclaje en la carrocería (chasis) debe estar reforzado con una placa de acero de al menos <strong>40 cm² de superficie</strong> y al menos <strong>3 mm de espesor</strong>, y debe poder soportar una carga de <strong>15 kN</strong>.</p>
+<span class="to-sub">6.3 Uso</span>
+<p>Un arnés debe utilizarse en su configuración de homologación sin modificaciones ni eliminación de piezas, y de conformidad con las instrucciones del fabricante. La eficacia y la vida útil de los arneses de seguridad están directamente relacionadas con la forma en que se instalan, utilizan y mantienen.</p>
+<p class="to-prohibicion"><strong>Los dispositivos elásticos fijados a las correas de hombro están prohibidos.</strong></p>
+<p>Los arneses deben sustituirse tras toda colisión severa y si están cortados o deshilachados, o en caso de debilitamiento de las correas por la acción del sol o de productos químicos. También deben sustituirse si las partes metálicas o las hebillas están dobladas, deformadas u oxidadas. Cualquier arnés que no funcione perfectamente debe ser sustituido.</p>
+`,
+
+// ══ ART.7 (extinción) ══
+extincion: `
+<span class="to-art">ART. 7 — EXTINTORES Y SISTEMAS DE EXTINCIÓN</span>
+<p class="to-prohibicion"><strong>El uso de los siguientes productos está prohibido: BCF, NAF.</strong></p>
+<span class="to-sub">7.1 Aplicación</span>
+<span class="to-sub">7.1.1 En rallye</span>
+<p>Se aplican los Artículos 7.2 y 7.3. Los Sistemas de extinción y Extintores manuales conformes a la norma FIA 8865-2015 (Lista Técnica nº 52) se recomiendan.</p>
+<p>Los Sistemas de extinción conformes a la norma FIA 8865-2015 (Lista Técnica nº 52) son <strong>obligatorios</strong> para:</p>
+<ul>
+<li>World Rally Cars homologados a partir del 01.01.2017 conformes a la extensión 400/01 WRC y Art. 255A Apéndice J 2021.</li>
+<li>World Rally Cars homologados a partir del 01.01.2015 conformes a la extensión 300/01 WRC y Art. 255A Apéndice J 2016.</li>
+<li>World Rally Cars homologados a partir del 01.01.2014 conformes a la extensión 200/01 WRC y Art. 255A Apéndice J 2016.</li>
+<li>World Rally Cars homologados antes del 31.12.2013 conformes a la extensión 100/01 KSR y extensión WR, y Art. 255A Apéndice J 2013.</li>
+<li>Vehículos Super 2000 (Rallyes) conformes al Art. 255A Apéndice J 2013.</li>
+<li>Vehículos del Grupo Rally2 conformes al Art. 261 del Apéndice J.</li>
+<li>Vehículos del Grupo R-GT homologados a partir del 01.01.2020 conformes al Art. 256.</li>
+<li>Vehículos del Grupo R-GT conformes al Art. 256 del Apéndice J 2019.</li>
+<li>Vehículos de los Grupos Rally5, Rally4 y Rally3 conformes al Art. 260.</li>
+<li>Vehículos de los Grupos R3/R3T homologados antes del 31.12.2019 conformes al Art. 260/260D del Apéndice J 2019.</li>
+<li>Vehículos de los Grupos R1 y R2 homologados antes del 31.12.2018 conformes al Art. 260 del Apéndice J 2018.</li>
+</ul>
+<span class="to-sub">7.1.2 En circuito, slalom, carrera de montaña</span>
+<p>Se aplica el Artículo 7.2 o 7.3. Se recomiendan los sistemas FIA 8865-2015 (Lista Técnica nº 52).</p>
+<span class="to-sub">7.2 Sistemas instalados</span>
+<span class="to-sub">7.2.1</span>
+<p>Cada vehículo debe estar equipado con un sistema de extinción conforme a la Norma FIA de Sistemas de Extinción instalados en Vehículos de Competición (1999) o a la Norma FIA 8865-2015 (véase Art. 7.1). Debe utilizarse conforme a las instrucciones del fabricante y a las Listas Técnicas nº 16 o nº 52. En rallyes, la cantidad mínima de agente extintor de los sistemas de la Lista Técnica nº 16 debe ser de <strong>3 kg</strong>.</p>
+<span class="to-sub">7.2.2</span>
+<p>Cada botellín debe estar adecuadamente protegido y situarse en el habitáculo. También puede situarse en el compartimento de equipaje siempre que esté al menos a <strong>300 mm de los bordes exteriores de la carrocería</strong> en todas las direcciones horizontales. Debe estar fijado con un <strong>mínimo de 2 correas metálicas bloqueadas por tornillos</strong> y el sistema de fijación debe resistir una deceleración de <strong>25 g</strong>. Se requieren topes anti-torpedo. El material del sistema de fijación debe poder utilizarse de -15°C a +80°C. Todo el equipo de extinción debe resistir el fuego, incluidas las fijaciones de las canalizaciones y las boquillas. <strong>Las canalizaciones de plástico están prohibidas</strong> y las de metal son obligatorias (salvo indicación contraria).</p>
+<span class="to-sub">7.2.3</span>
+<p>El piloto (y el copiloto si es aplicable), sentado normalmente con el arnés abrochado y el volante en su lugar, debe poder activar manualmente el sistema de extinción. El sistema de activación eléctrica (caja eléctrica) debe instalarse en una posición donde los pilotos luminosos sean visibles para un oficial de la competición sin desmontar ningún elemento del vehículo. <strong>No está permitido instalar la caja eléctrica bajo los asientos.</strong></p>
+<p>Además, un dispositivo de activación exterior debe estar combinado con el interruptor del cortacircuitos. Debe estar marcado con la letra <strong>"E" en rojo en el interior de un círculo blanco con borde rojo de un diámetro mínimo de 10 cm</strong>. Para los vehículos de tipo Rally1 y WRC, la activación debe conllevar obligatoriamente el corte del motor y de la batería.</p>
+<span class="to-sub">7.2.4</span>
+<p>El sistema debe funcionar en todas las posiciones.</p>
+<span class="to-sub">7.2.5</span>
+<p>Las boquillas deben ser adecuadas para el agente extintor y no deben estar apuntadas directamente hacia la cabeza de los ocupantes.</p>
+<span class="to-sub">7.3 Extintores manuales</span>
+<span class="to-sub">7.3.1</span>
+<p>Cada vehículo debe estar equipado con uno o dos extintores conformes a los Artículos 7.3.2 a 7.3.5, o conformes a la Norma FIA 8865-2015.</p>
+<p><strong>Campeonatos FIA a partir del 01.01.2024 / Vehículos Rally:</strong> Cada vehículo debe estar equipado con <strong>dos extintores</strong>. El segundo extintor manual debe instalarse conforme al Artículo 7.3.6; puede instalarse en el habitáculo o el maletero.</p>
+<p class="to-alerta">A partir del 01.01.2024, al menos uno de los dos extintores manuales obligatorios debe ser compatible con <strong>alta tensión</strong>.</p>
+<p class="to-alerta">A partir del 01.01.2026, <strong>ambos extintores manuales deben ser compatibles con alta tensión</strong>.</p>
+<span class="to-sub">7.3.2 Agentes extintores autorizados</span>
+<p>AFFF, 4F Universal, Ecolife Plus, FX G-TEC, Viro3, Novec 1230, FK 5-1-12, polvo o cualquier otro agente homologado por la FIA.</p>
+<span class="to-sub">7.3.3 Cantidad mínima de agente extintor</span>
+<ul>
+<li>AFFF: <strong>2,4 litros</strong></li>
+<li>4F Universal: <strong>2,4 litros</strong></li>
+<li>Ecolife Plus: <strong>2,4 litros</strong></li>
+<li>FX G-TEC: <strong>2,0 kg</strong></li>
+<li>Viro3: <strong>2,0 kg</strong></li>
+<li>Novec 1230: <strong>2,0 kg</strong></li>
+<li>FK 5-1-12: <strong>2,0 kg</strong></li>
+<li>Polvo: <strong>2,0 kg</strong></li>
+</ul>
+<span class="to-sub">7.3.4</span>
+<p>Todos los extintores deben estar presurizados según las instrucciones del fabricante. Para el polvo: 8 bares mínimo, 13,5 bares máximo. Los extintores de AFFF, 4F Universal y Ecolife Plus deben estar equipados con un sistema de verificación de la presión del contenido.</p>
+<span class="to-sub">7.3.5 Información visible en cada extintor</span>
+<ul>
+<li>Nombre del fabricante</li>
+<li>Número de serie</li>
+<li>Tipo y cantidad de agente extintor</li>
+<li>Número de homologación FIA</li>
+<li>Fecha de la última verificación/recarga</li>
+<li>Clase de incendio</li>
+</ul>
+`,
+
+// ══ ART.8 (jaula) ══
+estructura: `
+<span class="to-art">ART. 8 — ARMADURA DE SEGURIDAD</span>
+<span class="to-sub">8.1 Generalidades</span>
+<p>En todo momento durante la competición, todos los ocupantes del vehículo deben estar dentro del volumen definido por la armadura de seguridad. Para los vehículos homologados antes del 01.01.2021, referirse al Art. 253-8 del Apéndice J 2020. Para los homologados antes del 01.01.2017, referirse al Apéndice J 2016.</p>
+<p>Salvo indicación contraria en el reglamento técnico aplicable, la armadura puede ser:</p>
+<p><strong>a. Homologada o Certificada por una ASN</strong> conforme al reglamento de homologación FIA para armaduras de seguridad. Una copia auténtica del documento de homologación o del certificado que lleva los mismos números, aprobado por la ASN y firmado por técnicos cualificados que representan al fabricante de la armadura, debe presentarse a los comisarios técnicos de la competición. La armadura debe estar identificada individualmente mediante una placa de identificación conforme a la que figura en la copia auténtica entregada por la ASN. <strong>Esta placa no debe desplazarse y no debe fijarse a la armadura de forma provisional.</strong></p>
+<p><strong>b. Homologada por la FIA</strong> conforme al reglamento de homologación FIA para armaduras de seguridad. Debe estar descrita en, o ser objeto de una extensión de la ficha de homologación del vehículo homologada por la FIA. Los compradores deben recibir del fabricante del vehículo el correspondiente certificado numerado.</p>
+<p>Para los siguientes vehículos, la armadura debe obligatoriamente ser homologada por la FIA: World Rally Cars (Art. 255A); Rally2 (Art. 261); R-GT (Art. 256); Rally5, Rally4 y Rally3 (Art. 260).</p>
+<span class="to-sub">8.3 Uso</span>
+<p>Las siguientes modificaciones están <strong>prohibidas</strong>:</p>
+<ul>
+<li>Toda modificación de los elementos soldados (cromado, mecanizados adicionales, soldaduras, etc.).</li>
+<li>Toda reparación debe ser realizada por el fabricante de la armadura o bajo su responsabilidad.</li>
+<li>Los tubos de la armadura no pueden ser utilizados como canalizaciones para fluidos.</li>
+<li><strong>El cromado de la armadura está prohibido.</strong></li>
+</ul>
+<p>En el interior del habitáculo, el paso de los siguientes elementos entre los largueros laterales de la carrocería y la armadura de seguridad está <strong>prohibido</strong>:</p>
+<ul>
+<li>Cables eléctricos</li>
+<li>Canalizaciones que transporten fluidos (excepto el líquido lavaparabrisas)</li>
+<li>Canalizaciones del sistema de extinción</li>
+</ul>
+<p>Las uniones desmontables eventualmente utilizadas en la armadura homologada no deben ser soldadas una vez ensambladas. Para lograr una fijación eficaz en la carrocería, el revestimiento interior original puede modificarse alrededor de las armaduras de seguridad y sus anclajes mediante corte o deformación. Esta modificación no permite retirar partes completas de tapicería o revestimiento.</p>
+<span class="to-sub">Protecciones acolchadas (padding)</span>
+<p>Donde el cuerpo de los ocupantes pudiera entrar en contacto con la armadura de seguridad, debe utilizarse un revestimiento ignífugo como protección.</p>
+<p>Todos los tubos de la armadura identificados en el Dibujo 253-68 y todos los refuerzos de techo deben estar equipados con protecciones conformes a la norma <strong>FIA 8857-2001 tipo A</strong> (véase Lista Técnica nº 23). Cada protección debe estar fijada de forma que no sea móvil respecto al tubo.</p>
+<p><strong>Aplicación:</strong> Para todas las categorías. Para las competiciones sin copiloto, las protecciones son obligatorias únicamente en el lado del piloto.</p>
+`,
+
+// ══ ART.13 (cortacorrientes) ══
+cortacorrientes: `
+<span class="to-art">ART. 13 — CORTACIRCUITOS GENERAL</span>
+<p>El cortacircuitos general debe cortar <strong>todos los circuitos eléctricos</strong> (batería, alternador o dínamo, luces, avisadores acústicos, encendido, controles eléctricos, etc.) y debe igualmente <strong>detener el motor</strong>.</p>
+<p>Este cortacircuitos debe ser de un <strong>modelo antideflagrante</strong>, y debe poder ser accionado desde el interior por el piloto y el copiloto, sentados y sujetos por sus arneses de seguridad, y desde el exterior del vehículo.</p>
+<p>En lo que respecta al exterior, el mando debe situarse <strong>obligatoriamente en la parte inferior de uno de los montantes del parabrisas</strong> en los vehículos cerrados. Debe estar claramente indicado por un <strong>rayo rojo en un triángulo azul con borde blanco de al menos 12 cm de base</strong>.</p>
+<p>Este mando exterior sólo concierne a los vehículos cerrados.</p>
+<p>Para los motores Diesel que no dispongan de inyectores de mando electrónico, el cortacircuitos debe estar acoplado a un dispositivo obturador de la admisión del motor.</p>
+<p><strong>Aplicación:</strong> Montaje obligatorio para todos los vehículos que participen en carreras de velocidad en circuito, rallyes o carreras de montaña. Montaje recomendado para las otras competiciones.</p>
+`,
+
+// ══ ART.16 (asientos) ══
+baquet: `
+<span class="to-art">ART. 16 — ASIENTOS, ANCLAJES Y SOPORTES DE ASIENTO</span>
+<span class="to-sub">1. Asientos</span>
+<p>Todos los asientos de los ocupantes deben estar homologados por la FIA (normas 8855-1999, 8855-2021 o 8862-2009) y no deben estar modificados. Deben situarse por delante del arceau principal (o del montante trasero del arceau lateral) de la armadura de seguridad (cf. Art. 253-8). Los materiales de las superficies o revestimientos de los componentes añadidos al asiento homologado deben ser no inflamables (ensayo ISO 3795, velocidad de combustión ≤ 75 mm/min).</p>
+<p><strong>• Asientos conformes a la norma FIA 8855-1999 (Lista Técnica nº 12)</strong></p>
+<p>El asiento debe utilizarse conforme a las instrucciones del fabricante y a la Lista Técnica nº 12. El límite de utilización es de <strong>5 años</strong> a partir de la fecha de fabricación indicada en la etiqueta obligatoria. El fabricante puede conceder una extensión de <strong>2 años adicionales</strong>, que debe indicarse en una etiqueta suplementaria. Si se utiliza un cojín entre el asiento homologado y el ocupante, su espesor máximo es de 50 mm.</p>
+<table class="to-tabla">
+<tr><th>Vehículos de Rally</th><th>Homologados antes de 01.01.2022</th><th>Homologados desde 01.01.2022</th></tr>
+<tr><td>Norma 8855-1999</td><td class="to-warn">Uso prohibido a partir del 01.01.2027</td><td class="to-danger">Uso prohibido</td></tr>
+</table>
+<p><strong>• Asientos conformes a la norma FIA 8855-2021 o 8862-2009 (Listas Técnicas nº 91 y 40)</strong></p>
+<p>El asiento debe utilizarse conforme a las instrucciones del fabricante y a la Lista Técnica nº 91 (resp. 40). El límite de utilización es de <strong>10 años</strong> a partir del año de fabricación. Es <strong>obligatorio</strong> el uso de los soportes homologados con el asiento conforme a la Lista Técnica nº 91 (resp. 40).</p>
+<table class="to-tabla">
+<tr><th>Vehículos de Rally</th><th>Homologados antes de 01.01.2022</th><th>Homologados desde 01.01.2022</th></tr>
+<tr><td>Norma 8862-2009</td><td>Pueden usarse con soportes homologados por el fabricante en variante opción</td><td class="to-ok">Uso obligatorio</td></tr>
+</table>
+<span class="to-sub">1.1 Posición de asiento (FIA 8855-2021 y 8862-2009)</span>
+<p>El piloto debe elegir un asiento bien adaptado a su cuerpo. En posición normal de conducción:</p>
+<ul>
+<li>La <strong>línea de los ojos</strong> debe situarse entre el borde inferior y superior del soporte lateral de la cabeza.</li>
+<li>Los <strong>hombros</strong> deben alojarse a la altura del soporte de hombros lateral.</li>
+<li>La <strong>pelvis</strong> debe estar soportada adecuadamente por el soporte lateral de la pelvis.</li>
+</ul>
+<p>La distancia lateral entre el casco y el soporte lateral de la cabeza (medida a 150 mm de la cara anterior del soporte) no debe ser superior a <strong>50 mm</strong>. Puede ajustarse con una extensión de espuma absorbente de energía del mismo material que el soporte de cabeza del asiento. Puede añadirse espuma adicional en el espacio libre de 50 mm del casco, siempre que esté recubierta con un revestimiento ignífugo.</p>
+<span class="to-sub">1.2 Insert de espuma entre piloto y asiento homologado</span>
+<p>Si se utiliza un insert de espuma entre el piloto y el asiento homologado, debe garantizarse un soporte lateral mínimo:</p>
+<ul>
+<li><strong>230 mm mín.</strong> en el soporte lateral de cabeza (plano de la cabeza)</li>
+<li><strong>180 mm mín.</strong> en el soporte lateral de hombros (plano del hombro)</li>
+<li><strong>100 mm mín.</strong> de altura en el soporte lateral de pelvis (plano de la pelvis, longitud ≥ 200 mm)</li>
+</ul>
+<p>Verificación mediante plantilla paralelepípedo de dimensiones X 200 × Y 150 × Z 100 mm.</p>
+<span class="to-sub">2. Anclajes para fijación de los soportes de asiento</span>
+<p>Si las fijaciones o soportes originales se modifican, las nuevas piezas deben estar aprobadas por el fabricante del asiento o cumplir:</p>
+<ul>
+<li>Mínimo <strong>4 fijaciones por asiento</strong> con tornillos de <strong>8 mm de diámetro mínimo</strong></li>
+<li>Superficies de contacto mínimas: <strong>40 cm² por punto de fijación</strong></li>
+<li>Los soportes deben fijarse sobre los anclajes originales del vehículo, o directamente sobre la carrocería/chasis según el Dibujo 253-65, o sobre anclajes conformes al Dibujo 253-65B</li>
+<li>Todos los componentes en <strong>acero</strong> (excepto contraplacas en chasis de aleación ligera)</li>
+</ul>
+<p>Se permite UN SOLO espaciador (entretoise) sólido de acero o aleación de aluminio por punto de contacto, espesor máx. <strong>20 mm</strong>. <strong>Prohibido apilar varios espaciadores en un mismo punto.</strong></p>
+<span class="to-sub">3. Sistemas de apertura rápida y raíles de ajuste</span>
+<p>Si se usan sistemas de apertura rápida: deben soportar fuerzas horizontal y vertical de <strong>18.000 N</strong>, no aplicadas simultáneamente. Si se usan raíles de ajuste: deben ser los suministrados originalmente con el vehículo homologado o con el asiento.</p>
+<span class="to-sub">4. Fijación de los soportes de asiento al asiento</span>
+<p>La fijación entre el asiento y los soportes debe estar compuesta de <strong>4 fijaciones</strong>, 2 en la parte delantera y 2 en la parte trasera, conforme a la Lista Técnica aplicable.</p>
+`,
+
+// Elementos sin artículo específico en Art.253 usan texto de la normativa pre-cargada
+bateria: `
+<span class="to-art">ART. 12 / ART. 13 — BATERÍA Y CORTACIRCUITOS</span>
+<p>La batería debe estar firmemente fijada e impedida de desplazarse en caso de accidente o vuelco. Si está ubicada en el habitáculo, debe estar en una caja estanca de material no conductor. Los terminales deben estar protegidos contra cortocircuito accidental. Los cables deben estar protegidos y alejados de fuentes de calor. Véase también Art. 253-13 (cortacircuitos) y Art. 253-18 (vehículos eléctricos/híbridos, Art. 266-C).</p>
+`,
+limpias: `<span class="to-art">ART. 11.1 — LIMPIAPARABRISAS</span>
+<p>El limpiaparabrisas debe estar operativo limpiando la zona de visión del piloto. Obligatorio en rally por condiciones de lluvia y barro. Véase Art. 11 (Vitres/Filets).</p>`,
+puertas: `<span class="to-art">ART. 5 — FIJACIONES ADICIONALES (capós y puertas)</span>
+<p>Deben instalarse al menos dos fijaciones de seguridad adicionales para cada uno de los capós. Los cierres originales deben ser inutilizados o suprimidos. Facultativo para el Grupo N, obligatorio para los otros Grupos. Los objetos importantes a bordo deben estar solidamente fijados.</p>`,
+faldones: `<span class="to-art">Reglamento Técnico de Categoría — Carrocería</span>
+<p>Los faldones deben estar presentes si forman parte de la homologación del vehículo. No deben estar sueltos ni presentar riesgo de desprendimiento. Sus dimensiones deben ser conformes al reglamento técnico y a la ficha de homologación. Véase la ficha técnica específica del modelo y categoría.</p>`,
+paragolpes: `<span class="to-art">ART. 253-2 / Reglamento Técnico de Categoría</span>
+<p>El paragolpes debe corresponder a la homologación del vehículo, sin aristas vivas. La calandra no debe estar obstruida (ventilación del radiador). El skid plate o protección inferior delantera debe estar correctamente fijado. Véase la ficha técnica específica del modelo.</p>`,
+ala_post: `<span class="to-art">Reglamento Técnico de Categoría — Aerodinámica</span>
+<p>El ala trasera debe ser la homologada para el modelo y categoría. Sus dimensiones deben estar dentro de los límites reglamentarios. Debe estar fijada correctamente sin juego. Sin aristas vivas ni elementos punzantes. Véase la ficha técnica del vehículo y reglamento de categoría.</p>`,
+bajos: `<span class="to-art">ART. 253-2 / Reglamento Técnico de Categoría</span>
+<p>Los protectores de bajos (sideskirts y skid plates) deben estar presentes si son parte de la homologación. En rally protegen el depósito y sistema de frenos. Deben estar correctamente fijados. Véase la ficha técnica del modelo.</p>`,
+salpicadero: `<span class="to-art">ART. 253-4 — Habitáculo</span>
+<p>El salpicadero no debe presentar elementos que puedan lesionar al ocupante en caso de impacto. Los instrumentos deben estar correctamente fijados. Sin cables sueltos. El acceso al exterior del piloto no debe estar obstruido.</p>`,
+cuentarevs: `<span class="to-art">Reglamento Técnico de Categoría</span>
+<p>El cuentarrevoluciones es obligatorio en las categorías que lo requieran reglamentariamente. Debe estar correctamente fijado y ser legible por el piloto desde su posición de conducción normal.</p>`,
+paneles: `<span class="to-art">ART. 253-4 — Paneles de habitáculo</span>
+<p>Los paneles del habitáculo deben estar presentes y correctamente fijados. Sin huecos que permitan la entrada de gases de escape o combustible al habitáculo. Los paneles ignífugos son obligatorios en zonas próximas al motor y al depósito.</p>`,
+aislamiento: `<span class="to-art">ART. 253-4/15 — Aislamiento del habitáculo</span>
+<p>El habitáculo debe estar correctamente aislado del motor y del sistema de escape para evitar la entrada de gases tóxicos y calor excesivo. Deben sellarse todos los pasos de tuberías y cables que atraviesen el cortafuegos. Pantalla de protección eficaz obligatoria entre motor y asientos de los ocupantes (Art. 253-15).</p>`,
+tunel: `<span class="to-art">ART. 253-4 — Túnel de transmisión</span>
+<p>El túnel de transmisión debe estar cubierto por un panel de material resistente que evite el contacto de los ocupantes con la transmisión en caso de rotura. Material resistente al calor. En vehículos 4x4 es especialmente importante por las altas temperaturas generadas.</p>`,
+luz_polvo: `<span class="to-art">ART. 253-15 + Reglamento Deportivo Rally</span>
+<p>Obligatoria luz roja trasera adicional de potencia suficiente (mínimo equivalente a 21W), visible en condiciones adversas (polvo, lluvia, niebla). Debe funcionar independientemente del pedal de freno mediante interruptor propio accesible para el piloto. En tramos nocturnos se añaden los requisitos de iluminación del Reglamento Particular.</p>`,
+numero: `<span class="to-art">Reglamento Particular de la Prueba</span>
+<p>El número de competición debe figurar en las posiciones indicadas por el reglamento particular (normalmente ambas puertas delanteras y capó). Las dimensiones, tipografía y colores son los especificados por la organización. Debe ser legible y no estar cubierto.</p>`,
+publicidad: `<span class="to-art">Reglamento Particular de la Prueba</span>
+<p>Los adhesivos de los patrocinadores oficiales deben colocarse en las posiciones y tamaños especificados (entregados en verificaciones administrativas o técnicas). Tienen prioridad sobre la publicidad propia del equipo. No pueden estar cubiertos, recortados ni modificados. El incumplimiento puede conllevar sanción deportiva.</p>`,
+onboard: `<span class="to-art">ART. 2 — Cámaras a bordo</span>
+<p>Cuando sea obligatoria: instalada antes de las verificaciones técnicas. No debe sobresalir de la carrocería. En el habitáculo: prohibida entre el plano del punto más trasero del salpicadero y el plano del punto más trasero de los asientos. Fijaciones: solo tornillo, collarín metálico, pinza express o insertos metálicos. Prohibido: pegamento, doble cara, adhesivo, ventosa. Las fijaciones deben resistir una deceleración mínima de 25 g. No debe obstaculizar la visibilidad ni la salida de emergencia del equipo.</p>`,
+
+};
+
+
+
+
+
+
+
+
+
+
+
+
+// ══════════════════════════════════════════════════════════════
+// STATIC DATA
+// ══════════════════════════════════════════════════════════════
+const ORGS=[
+  {id:'fia',  label:'FIA',   sub:'Internacional'},
+  {id:'rfeda',label:'RFEDA', sub:'Nacional España'},
+  {id:'rfmc', label:'RFMC',  sub:'Motos España'},
+];
+const CATEGORIES={
+  fia:[
+    {id:'fia_rally',  flag:'🚗',name:'Rally',         org:'FIA',regCode:'FIA-RALLY-2026',   url:'https://www.fia.com/regulation/category/123'},
+    {id:'fia_circuit',flag:'🏎️',name:'Circuito / GT', org:'FIA',regCode:'FIA-CIRCUIT-2025', url:'https://www.fia.com/regulation/category/123'},
+    {id:'fia_formula',flag:'🔵',name:'Fórmulas',      org:'FIA',regCode:'FIA-FORMULA-2025', url:'https://www.fia.com/regulation/category/123'},
+    {id:'fia_xc',     flag:'🏔️',name:'Cross Country', org:'FIA',regCode:'FIA-XC-2025',      url:'https://www.fia.com/regulation/category/123'},
+    {id:'fia_hc',     flag:'⛰️',name:'Hill Climb',    org:'FIA',regCode:'FIA-HC-2025',      url:'https://www.fia.com/regulation/category/123'},
+    {id:'fia_rx',     flag:'💥',name:'Rallycross',    org:'FIA',regCode:'FIA-RX-2025',      url:'https://www.fia.com/regulation/category/123'},
+  ],
+  rfeda:[
+    {id:'rfeda_rally', flag:'🇪🇸',name:'CERA / Rallyes Nac.',  org:'RFEDA',regCode:'RFEDA-RALLY-2026', url:'https://www.rfeda.es/reglamentos'},
+    {id:'rfeda_asf',   flag:'🏁', name:'Asfalto / Circuito',    org:'RFEDA',regCode:'RFEDA-ASF-2025',   url:'https://www.rfeda.es/reglamentos'},
+    {id:'rfeda_tc',    flag:'🏆', name:'Turismos / Copa',        org:'RFEDA',regCode:'RFEDA-TC-2025',    url:'https://www.rfeda.es/reglamentos'},
+    {id:'rfeda_slalom',flag:'🔄', name:'Slalom / Autocross',    org:'RFEDA',regCode:'RFEDA-SL-2025',    url:'https://www.rfeda.es/reglamentos'},
+    {id:'rfeda_mont',  flag:'⛰️',name:'Montaña',               org:'RFEDA',regCode:'RFEDA-MONT-2025',  url:'https://www.rfeda.es/reglamentos'},
+    {id:'rfeda_hist',  flag:'🏛️',name:'Históricos',            org:'RFEDA',regCode:'RFEDA-HIST-2025',  url:'https://www.rfeda.es/reglamentos'},
+  ],
+  rfmc:[
+    {id:'rfmc_road',  flag:'🏍️',name:'Velocidad / Road', org:'RFMC',regCode:'RFMC-VEL-2025',url:'https://www.rfmc.es'},
+    {id:'rfmc_enduro',flag:'🌲', name:'Enduro / Trail',   org:'RFMC',regCode:'RFMC-END-2025',url:'https://www.rfmc.es'},
+    {id:'rfmc_moto3', flag:'🔵', name:'Moto3 / Junior',   org:'RFMC',regCode:'RFMC-M3-2025', url:'https://www.rfmc.es'},
+  ],
+};
+const GROUPS={
+  fia_rally:   [{id:'RC1',icon:'⭐',name:'RC1',sub:'Rally1 WRC'},{id:'RC2',icon:'🔴',name:'RC2',sub:'Rally2'},{id:'RC3',icon:'🟠',name:'RC3',sub:'Rally3'},{id:'RC4',icon:'🟡',name:'RC4',sub:'Rally4'},{id:'RC5',icon:'🟢',name:'RC5',sub:'Rally5/N'},{id:'RGT',icon:'🏆',name:'RGT',sub:'GT Classic'}],
+  fia_circuit: [{id:'GT3',icon:'🏎️',name:'GT3',sub:'GTE/LMGT3'},{id:'GT4',icon:'🔵',name:'GT4',sub:'Am Class'},{id:'TCR',icon:'🚗',name:'TCR',sub:'Touring Car'},{id:'ST',icon:'⚡',name:'Super Tour.',sub:'Nac./Reg.'},{id:'P1',icon:'💨',name:'LMP1/Hyper',sub:'Prototipo'}],
+  fia_formula: [{id:'F4',icon:'🔵',name:'F4',sub:'FIA F4'},{id:'F3',icon:'🟣',name:'F3',sub:'FIA F3'},{id:'F2',icon:'⭐',name:'F2',sub:'FIA F2'},{id:'FR',icon:'🟠',name:'F Regional',sub:'FR Regional'}],
+  fia_xc:      [{id:'T1W',icon:'🔴',name:'T1W',sub:'Ultimate+'},{id:'T1',icon:'🟠',name:'T1',sub:'Buggy XL'},{id:'T3',icon:'🟡',name:'T3',sub:'Proto ligero'},{id:'T4',icon:'🟢',name:'T4',sub:'Prod.pick-up'}],
+  fia_hc:      [{id:'D1',icon:'⭐',name:'Div.1',sub:'Prototipos'},{id:'D2',icon:'🔵',name:'Div.2',sub:'GT/Turismo'},{id:'D3',icon:'🟢',name:'Div.3',sub:'Producción'}],
+  fia_rx:      [{id:'RX1',icon:'⚡',name:'RX1e',sub:'Eléctrico'},{id:'RX2',icon:'🔴',name:'RX2',sub:'Super 1600'},{id:'TT',icon:'🟡',name:'TouringCar',sub:'Turismo RX'}],
+  rfeda_rally: [{id:'R5',icon:'🔴',name:'Rally2/R5',sub:'Tracción total'},{id:'N4',icon:'🟠',name:'N4/WRC2',sub:'Prod.4WD'},{id:'R3',icon:'🟡',name:'R3/2WD',sub:'Trac.delantera'},{id:'R2',icon:'🟢',name:'R2',sub:'Junior 2WD'},{id:'HIST',icon:'🏛️',name:'Histórico',sub:'Gpo B/A/N'}],
+  rfeda_asf:   [{id:'SP3',icon:'⭐',name:'SP3',sub:'Super Prod.'},{id:'CUP',icon:'🏆',name:'Copa/One-Make',sub:'Monomarca'},{id:'T2',icon:'🟡',name:'T2/Turismo',sub:'Turismo serie'}],
+  rfeda_tc:    [{id:'TCR_ES',icon:'🚗',name:'TCR Spain',sub:'Turismos TCR'},{id:'COPA',icon:'🏆',name:'Copa Campeon.',sub:'Nac.Turismo'}],
+  rfeda_slalom:[{id:'E1',icon:'🔴',name:'E1 Turbo',sub:'>2000cc turbo'},{id:'E2',icon:'🟠',name:'E2 Asp',sub:'+2000cc aspir.'},{id:'E3',icon:'🟡',name:'E3',sub:'≤1600cc'},{id:'AC',icon:'🌀',name:'Autocross',sub:'Autocross Nac.'}],
+  rfeda_mont:  [{id:'EH1',icon:'⭐',name:'EH-I',sub:'Ilimitada'},{id:'EH2',icon:'🔴',name:'EH-II',sub:'GT/Prototipo'},{id:'EH3',icon:'🟠',name:'EH-III',sub:'Turismo GT'},{id:'EH4',icon:'🟢',name:'EH-IV',sub:'Prod.Nac.'}],
+  rfeda_hist:  [{id:'H0',icon:'🏛️',name:'Grupo F',sub:'Pre-65'},{id:'H1',icon:'🔵',name:'Grupo A',sub:'Turismo Hist.'},{id:'H2',icon:'🟣',name:'Grupo B',sub:'Grupo B'}],
+  rfmc_road:   [{id:'SBK',icon:'🏍️',name:'Superbike',sub:'>1000cc'},{id:'SS',icon:'🔵',name:'Supersport',sub:'600cc'},{id:'STK',icon:'🟢',name:'Stock 1000',sub:'Producción'}],
+  rfmc_enduro: [{id:'E1',icon:'🌲',name:'E1',sub:'≤250cc 2T'},{id:'E2',icon:'🌿',name:'E2',sub:'≤300cc 4T'},{id:'E3',icon:'🌳',name:'E3',sub:'>300cc'}],
+  rfmc_moto3:  [{id:'M3',icon:'🔵',name:'Moto3',sub:'250cc mono'},{id:'MJ',icon:'🟢',name:'Junior Moto3',sub:'Sub-18'}],
+};
+const CHECKLIST=[
+  {group:'Seguridad Pasiva',items:[
+    {id:'baquet',    icon:'🪑',text:'Baquet / Asiento de seguridad'},
+    {id:'arneses',   icon:'🔒',text:'Arneses / Sistema de retención'},
+    {id:'estructura',icon:'🏗️',text:'Estructura de seguridad (jaula)'},
+    {id:'bateria',   icon:'🔋',text:'Fijación y protección de batería'},
+  ]},
+  {group:'Anti-Incendio',items:[
+    {id:'extincion',      icon:'🧯',text:'Sistema de extinción'},
+    {id:'deposito',       icon:'⛽',text:'Depósito / Emplazamiento'},
+    {id:'canalizaciones', icon:'🛡️',text:'Protección canalizaciones externas'},
+    {id:'cortacorrientes',icon:'🔌',text:'Cortacorrientes / Master switch'},
+  ]},
+  {group:'Carrocería y Protecciones',items:[
+    {id:'parabrisas',icon:'🪟',text:'Parabrisas o red metálica'},
+    {id:'limpias',   icon:'🚿',text:'Limpiaparabrisas'},
+    {id:'carroceria',icon:'🚗',text:'Estado general de la carrocería'},
+    {id:'puertas',   icon:'🚪',text:'Puertas, aletas y capó'},
+    {id:'faldones',  icon:'⬛',text:'Faldones laterales'},
+    {id:'paragolpes',icon:'⬅️',text:'Paragolpes / Calandra delantera'},
+    {id:'ala_post',  icon:'➡️',text:'Ala posterior'},
+    {id:'bajos',     icon:'⬇️',text:'Protecciones bajos laterales'},
+  ]},
+  {group:'Habitáculo',items:[
+    {id:'salpicadero',icon:'🎛️',text:'Salpicadero'},
+    {id:'cuentarevs', icon:'📊',text:'Cuentarrevoluciones'},
+    {id:'paneles',    icon:'🧱',text:'Paneles habitáculo'},
+    {id:'aislamiento',icon:'🔇',text:'Aislamiento habitáculo'},
+    {id:'tunel',      icon:'⚙️',text:'Túnel de transmisión'},
+  ]},
+  {group:'Mecánica y Control',items:[
+    {id:'direccion', icon:'🕹️',text:'Dirección'},
+    {id:'acelerador',icon:'🦶',text:'Acelerador / Muelle recuperador'},
+    {id:'luz_polvo', icon:'💡',text:'Luz de polvo / freno trasera'},
+    {id:'cierres',   icon:'🔁',text:'Cierres de seguridad (capó/puertas)'},
+    {id:'anillas',   icon:'🔗',text:'Anillas de remolque y señalización'},
+  ]},
+  {group:'Identificación',items:[
+    {id:'numero',    icon:'🔢',text:'Colocación correcta del número'},
+    {id:'publicidad',icon:'📢',text:'Publicidad obligatoria'},
+    {id:'onboard',   icon:'📹',text:'Cámara on-board'},
+  ]},
+];
+
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+const state={org:null,cat:null,group:null};
+const aiCache={};       // artículos ampliados por IA
+const AICACHE_KEY='ct_aicache_v1';
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+function init(){
+  // Org pills
+  const op=document.getElementById('org-pills');
+  ORGS.forEach(o=>{
+    const el=document.createElement('div');
+    el.className='pill'; el.id='po-'+o.id;
+    el.innerHTML=`<b>${o.label}</b>&nbsp;<small style="opacity:.6">${o.sub}</small>`;
+    el.onclick=()=>selOrg(o.id);
+    op.appendChild(el);
+  });
+  loadAiCache();
+  updateBadge();
+  renderCacheStats();
+  window.addEventListener('online', updateBadge);
+  window.addEventListener('offline', updateBadge);
+}
+
+function updateBadge(){
+  const b=document.getElementById('conn-badge');
+  if(!apiDisponible()){
+    b.className='offline';
+    b.textContent='● LOCAL';
+    b.title='Abierto desde archivo local. Normativa pre-cargada disponible. IA desactivada.';
+  } else if(!navigator.onLine){
+    b.className='offline';b.textContent='● OFFLINE';
+  } else {
+    b.className='online';b.textContent='● ONLINE';
+  }
+}
+
+// ── SELECCIÓN ─────────────────────────────────────────────────
+function selOrg(id){
+  state.org=id; state.cat=null; state.group=null;
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  document.getElementById('po-'+id).classList.add('active');
+  document.getElementById('cat-lbl').style.display='';
+  document.getElementById('cat-grid').style.display='';
+  renderCats();
+  document.getElementById('grp-section').style.display='none';
+  invalidate();
+}
+function renderCats(){
+  const g=document.getElementById('cat-grid'); g.innerHTML='';
+  (CATEGORIES[state.org]||[]).forEach(c=>{
+    const el=document.createElement('div');
+    el.className='cat-card'; el.id='cc-'+c.id;
+    el.innerHTML=`<div class="cc-flag">${c.flag}</div><div class="cc-name">${c.name}</div><div class="cc-org">${c.regCode}</div>`;
+    el.onclick=()=>selCat(c.id);
+    g.appendChild(el);
+  });
+}
+function selCat(id){
+  state.cat=id; state.group=null;
+  document.querySelectorAll('.cat-card').forEach(c=>c.classList.remove('active'));
+  document.getElementById('cc-'+id).classList.add('active');
+  const grps=GROUPS[id];
+  if(grps&&grps.length){
+    document.getElementById('grp-section').style.display='';
+    renderGroups(grps);
+  } else {
+    document.getElementById('grp-section').style.display='none';
+    state.group={id:'GEN',name:'General',sub:''};
+    renderChecklist();
+  }
+  document.getElementById('btn-dl-sel').disabled=false;
+  invalidate();
+}
+function renderGroups(grps){
+  const g=document.getElementById('grp-grid'); g.innerHTML='';
+  grps.forEach(gr=>{
+    const el=document.createElement('div');
+    el.className='group-btn'; el.id='gb-'+gr.id;
+    el.innerHTML=`<span class="gb-icon">${gr.icon}</span><div><div class="gb-name">${gr.name}</div><div class="gb-sub">${gr.sub}</div></div>`;
+    el.onclick=()=>selGroup(gr);
+    g.appendChild(el);
+  });
+}
+function selGroup(g){
+  state.group=g;
+  document.querySelectorAll('.group-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('gb-'+g.id).classList.add('active');
+  renderChecklist();
+}
+function invalidate(){
+  document.getElementById('check-no-sel').style.display='';
+  document.getElementById('check-content').style.display='none';
+}
+
+// ── CHECKLIST RENDER ──────────────────────────────────────────
+function renderChecklist(){
+  if(!state.cat||!state.group) return;
+  document.getElementById('check-no-sel').style.display='none';
+  const cc=document.getElementById('check-content');
+  cc.style.display='block'; cc.innerHTML='';
+  CHECKLIST.forEach(grp=>{
+    const wrap=document.createElement('div');
+    wrap.className='chk-group';
+    let html=`<div class="chk-group-title">${grp.group}</div>`;
+    grp.items.forEach(item=>{
+      const hasAI=!!aiCache[aiKey(item.id)];
+      const pre=!!getPre(item.id);
+      html+=`<div class="chk-item" onclick="openItem('${item.id}','${item.icon}','${esc(item.text)}')">
+        <span class="ci-icon">${item.icon}</span>
+        <span class="ci-text">${item.text}</span>
+        ${pre?`<span class="ci-badge pre">PRE</span>`:''}
+        ${hasAI?`<span class="ci-badge ai">IA+</span>`:''}
+        <span class="ci-arr">›</span>
+      </div>`;
+    });
+    wrap.innerHTML=html;
+    cc.appendChild(wrap);
+  });
+}
+function esc(s){return s.replace(/'/g,"\\'");}
+function aiKey(itemId){return `${state.cat}_${state.group?.id}_${itemId}`;}
+function getPre(itemId){
+  const bank=PRELOADED[itemId];
+  if(!bank) return null;
+  return bank[state.cat] || bank['default'] || null;
+}
+
+// ── DETECCIÓN DE ENTORNO ──────────────────────────────────────
+// Desde content:// o file:// el navegador bloquea fetch() a dominios externos.
+// En ese caso desactivamos la IA y mostramos solo datos pre-cargados.
+function apiDisponible(){
+  const proto = location.protocol;
+  // Solo se puede llamar a la API desde https:// o http://
+  return proto === 'https:' || proto === 'http:';
+}
+
+// ── OPEN ITEM ─────────────────────────────────────────────────
+let curItem=null;
+async function openItem(id,icon,text){
+  curItem={id,icon,text};
+  const cat=(CATEGORIES[state.org]||[]).find(c=>c.id===state.cat)||{};
+  document.getElementById('m-icon').textContent=icon;
+  document.getElementById('m-title').textContent=text;
+  document.getElementById('mf-org').textContent=cat.org||'FIA';
+  document.getElementById('mf-reg').textContent=cat.regCode||'—';
+  document.getElementById('modal-overlay').classList.add('show');
+  document.body.style.overflow='hidden';
+
+  const ak=aiKey(id);
+  const aiRes=aiCache[ak];
+  const pre=getPre(id);
+  const puedeApi=apiDisponible()&&navigator.onLine;
+
+  if(aiRes){
+    // IA en caché → mostrar directamente (no necesita red)
+    setMeta(cat,'IA+');
+    renderResult(aiRes, false);
+  } else if(pre){
+    // Datos pre-cargados → mostrar siempre sin tocar la red
+    // Solo ofrecer "Ampliar" si la API es accesible (servidor web, no content://)
+    setMeta(cat,'PRE');
+    renderResult(pre, puedeApi);
+  } else {
+    // Sin datos locales
+    if(puedeApi){
+      setMeta(cat,'IA');
+      document.getElementById('mbody').innerHTML=`<div class="m-loading"><div class="spinner"></div><div class="m-load-txt">Consultando normativa específica...<br>Traduciendo al castellano</div></div>`;
+      try{
+        const res=await fetchAI(text,id,cat,state.group);
+        aiCache[ak]=res; saveAiCache();
+        setMeta(cat,'IA+');
+        renderChecklist();
+        renderResult(res,false);
+      }catch(e){ showError(); }
+    } else {
+      setMeta(cat,'—');
+      document.getElementById('mbody').innerHTML=`<div class="m-error"><div class="me-icon">📴</div><p>Este elemento no tiene normativa pre-cargada y no hay conexión disponible.<br><br>Abre la app desde un navegador con internet para descargarlo.</p></div>`;
+    }
+  }
+}
+
+function setMeta(cat,srcLabel){
+  const isAI=srcLabel==='IA+'||srcLabel==='IA';
+  document.getElementById('m-meta').innerHTML=`
+    <span class="meta-tag cat">${cat.flag||''} ${cat.name||''}</span>
+    <span class="meta-tag grp">${state.group?.name||''} · ${state.group?.sub||''}</span>
+    <span class="meta-tag src ${isAI?'ai-src':''}">${srcLabel==='PRE'?'● Offline garantizado':srcLabel==='IA+'?'● IA + Caché':srcLabel==='IA'?'◌ IA en tiempo real':'—'}</span>
+  `;
+}
+
+function renderResult(r, offerAI){
+  const okTags=(r.criterios_ok||[]).map(c=>`<div class="crit-tag ok"><span>✓</span>${c}</div>`).join('');
+  const malTags=(r.criterios_mal||[]).map(c=>`<div class="crit-tag mal"><span>✗</span>${c}</div>`).join('');
+  const cat=(CATEGORIES[state.org]||[]).find(c=>c.id===state.cat)||{};
+  let html='';
+
+  if(offerAI){
+    html+=`<div class="ai-banner">
+      <span class="ab-icon">🤖</span>
+      <span class="ab-txt">Normativa base cargada. ¿Quieres ampliar con el artículo exacto para <b>${state.group?.name||''}</b>?</span>
+      <button class="ab-btn" onclick="upgradeToAI('${curItem?.id}','${esc(curItem?.icon||'')}','${esc(curItem?.text||'')}')">Ampliar</button>
+    </div>`;
+  }
+
+  html+=`<div class="art-card">
+    <div class="art-ref">${r.articulo_principal} · ${r.reglamento}</div>
+    <div class="art-title">${r.titulo_articulo}</div>
+    <div class="art-body">${r.requisitos}</div>
+    ${r.homologacion&&r.homologacion!=='No aplica'?`<div class="homol-box"><div class="hb-l">Homologación requerida</div><div class="hb-t">${r.homologacion}</div></div>`:''}
+    ${r.articulos_relacionados?`<div class="src-row"><span class="sl">VER:</span><span style="font-family:var(--font-mono);font-size:10px;color:var(--muted)">${r.articulos_relacionados}</span></div>`:''}
+    <div class="src-row"><span class="sl">FUENTE:</span><a href="${cat.url||'#'}" target="_blank">${cat.regCode||''} →</a></div>
+  </div>`;
+
+  if(okTags) html+=`<div class="criteria-block"><div class="cb-label ok">✓ CORRECTO SI...</div>${okTags}</div>`;
+  if(malTags) html+=`<div class="criteria-block"><div class="cb-label mal">✗ RECHAZAR SI...</div>${malTags}</div>`;
+
+
+  // Add images if available for this item
+  const itemImgs = IMG_DATA[curItem?.id] || [];
+  if(itemImgs.length > 0){
+    let imgHtml = '<div class="img-gallery">';
+    imgHtml += '<div class="ig-label">📐 Diagramas oficiales FIA 2026</div>';
+    itemImgs.forEach((src,i) => {
+      imgHtml += `<div class="img-wrap"><img src="${src}" loading="lazy" onclick="expandImg(this)" title="Diagrama ${i+1}"></div>`;
+    });
+    imgHtml += '</div>';
+    html += imgHtml;
+  }
+
+  // Texto oficial traducido al castellano
+  const textoOficial = (typeof TEXTO_OFICIAL !== 'undefined') ? TEXTO_OFICIAL[curItem?.id] : null;
+  if(textoOficial){
+    html += `
+      <div class="official-sep"><span>📄 Texto oficial — Art. 253 Apéndice J FIA 2026</span></div>
+      <div class="official-box">
+        <div class="official-hdr">
+          <span class="official-badge">WMSC 26.03.2026</span>
+          <span class="official-hdr-txt">Traducción literal al castellano</span>
+        </div>
+        <div class="official-body">${textoOficial}</div>
+      </div>`;
+  }
+
+  document.getElementById('mbody').innerHTML=html;
+}
+
+async function upgradeToAI(id,icon,text){
+  if(!apiDisponible()){
+    // Seguridad extra: si se llega aquí desde content://, no hacer nada
+    return;
+  }
+  const cat=(CATEGORIES[state.org]||[]).find(c=>c.id===state.cat)||{};
+  document.getElementById('mbody').innerHTML=`<div class="m-loading"><div class="spinner"></div><div class="m-load-txt">Ampliando con IA...<br>Artículo específico para ${state.group?.name}</div></div>`;
+  try{
+    const res=await fetchAI(text,id,cat,state.group);
+    const ak=aiKey(id);
+    aiCache[ak]=res; saveAiCache();
+    setMeta(cat,'IA+');
+    renderChecklist();
+    renderResult(res,false);
+  }catch(e){
+    // Si falla, volver a mostrar datos PRE si existen
+    const pre=getPre(id);
+    if(pre){ setMeta(cat,'PRE'); renderResult(pre,false); }
+    else { showError(); }
+  }
+}
+
+function showError(){
+  document.getElementById('mbody').innerHTML=`<div class="m-error"><div class="me-icon">⚠️</div><p>No se pudo conectar con el servidor.<br>Verifica tu conexión.</p><button class="retry-btn" onclick="openItem('${curItem?.id}','${curItem?.icon}','${esc(curItem?.text||'')}')">Reintentar</button></div>`;
+}
+
+// ── AI FETCH ──────────────────────────────────────────────────
+async function fetchAI(itemText,itemId,cat,group){
+  const prompt=`Eres experto en reglamentos técnicos de automovilismo deportivo FIA y RFEDA.
+Actúas como asistente para comisarios técnicos de seguridad en competición.
+
+Elemento: "${itemText}"
+Organismo: ${cat.org||'FIA'}
+Categoría: ${cat.name||'—'}
+Grupo/Tipo: ${group?group.name+' ('+group.sub+')':'General'}
+Reglamento de referencia: ${cat.regCode||'—'}
+
+Proporciona el artículo concreto del reglamento FIA/RFEDA 2025 vigente, EN CASTELLANO, específico para esta categoría y grupo.
+Responde SOLO en JSON sin markdown:
+{"articulo_principal":"Art. X.X","titulo_articulo":"Título","reglamento":"Nombre reglamento","requisitos":"Texto requisitos específicos para esta categoría y grupo (3-4 frases)","criterios_ok":["ok1","ok2","ok3"],"criterios_mal":["mal1","mal2"],"homologacion":"Tipo homologación o No aplica","articulos_relacionados":"Otros arts."}`;
+
+  const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':API_KEY,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:900,messages:[{role:'user',content:prompt}]})
+  });
+  if(!resp.ok) throw new Error(resp.status);
+  const data=await resp.json();
+  const txt=data.content.filter(b=>b.type==='text').map(b=>b.text).join('').replace(/```json|```/g,'').trim();
+  return JSON.parse(txt);
+}
+
+// ── MODAL ─────────────────────────────────────────────────────
+function closeModal(){document.getElementById('modal-overlay').classList.remove('show');document.body.style.overflow='';}
+function handleOverlay(e){if(e.target===document.getElementById('modal-overlay'))closeModal();}
+
+// ── TABS ──────────────────────────────────────────────────────
+function goTab(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+  if(id==='offline') renderCacheStats();
+}
+
+// ── OFFLINE / CACHE ───────────────────────────────────────────
+function saveAiCache(){try{localStorage.setItem(AICACHE_KEY,JSON.stringify(aiCache));}catch(e){}}
+function loadAiCache(){try{const r=localStorage.getItem(AICACHE_KEY);if(r)Object.assign(aiCache,JSON.parse(r));}catch(e){}}
+function clearAiCache(){if(!confirm('¿Borrar normativa ampliada por IA?'))return;Object.keys(aiCache).forEach(k=>delete aiCache[k]);localStorage.removeItem(AICACHE_KEY);addLog('Caché IA borrado.','info');renderCacheStats();}
+
+function renderCacheStats(){
+  // Count preloaded items
+  let preTotal=0;
+  CHECKLIST.forEach(g=>g.items.forEach(i=>{if(PRELOADED[i.id])preTotal++;}));
+  const aiTotal=Object.keys(aiCache).length;
+  document.getElementById('cache-stats').innerHTML=`
+    <div class="offline-stat">
+      <div class="os-icon">📚</div>
+      <div><div class="os-title">Normativa base pre-cargada</div><div class="os-sub">Disponible sin conexión siempre</div></div>
+      <div class="os-badge builtin">${preTotal} elementos</div>
+    </div>
+    <div class="offline-stat">
+      <div class="os-icon">🤖</div>
+      <div><div class="os-title">Ampliaciones por IA</div><div class="os-sub">Guardadas tras consulta online</div></div>
+      <div class="os-badge ok">${aiTotal} artículos</div>
+    </div>`;
+}
+
+function addLog(msg,type='info'){
+  const log=document.getElementById('update-log');
+  const ts=new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  log.innerHTML+=`\n<span class="log-${type}">[${ts}] ${msg}</span>`;
+  log.scrollTop=log.scrollHeight;
+}
+
+async function downloadSelected(){
+  if(!state.cat||!state.group){alert('Selecciona categoría y grupo primero.');return;}
+  if(!apiDisponible()){alert('La ampliación con IA solo está disponible cuando la app se abre desde un servidor web (https://).\n\nDesde "Descargas" el navegador bloquea las conexiones externas por seguridad.');return;}
+  if(!navigator.onLine){alert('Sin conexión a internet.');return;}
+  const cat=(CATEGORIES[state.org]||[]).find(c=>c.id===state.cat)||{};
+  addLog(`Ampliando: ${cat.name} · ${state.group.name}...`,'info');
+  let ok=0,err=0;
+  for(const grp of CHECKLIST){
+    for(const item of grp.items){
+      const ak=aiKey(item.id);
+      if(aiCache[ak]){ok++;addLog(`  ✓ ${item.text} (ya en caché)`,'ok');continue;}
+      try{
+        const res=await fetchAI(item.text,item.id,cat,state.group);
+        aiCache[ak]=res; ok++;
+        addLog(`  ✓ ${item.text}`,'ok');
+      }catch(e){err++;addLog(`  ✗ ${item.text}`,'err');}
+      await new Promise(r=>setTimeout(r,400));
+    }
+  }
+  saveAiCache();
+  addLog(`Completo: ${ok} OK, ${err} errores.`,err?'err':'ok');
+  renderCacheStats();
+  renderChecklist();
+}
+
+// ══════════════════════════════════════════════════════════════
+// PWA — Service Worker + Install prompt
+// ══════════════════════════════════════════════════════════════
+let deferredPrompt = null;
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').then(reg=>{
+    console.log('SW registrado:', reg.scope);
+  }).catch(err=>console.log('SW error:', err));
+}
+
+window.addEventListener('beforeinstallprompt', e=>{
+  e.preventDefault();
+  deferredPrompt = e;
+  showInstallBanner();
+});
+
+window.addEventListener('appinstalled', ()=>{
+  hideInstallBanner();
+  deferredPrompt = null;
+});
+
+function showInstallBanner(){
+  if(document.getElementById('install-banner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'install-banner';
+  banner.style.cssText = `
+    position:fixed;bottom:0;left:0;right:0;z-index:999;
+    background:linear-gradient(135deg,#001a20,#0a0a14);
+    border-top:2px solid #00d4ff;
+    padding:12px 16px;display:flex;align-items:center;gap:12px;
+    font-family:'Barlow',sans-serif;
+  `;
+  banner.innerHTML = `
+    <span style="font-size:24px">📲</span>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:600;color:#fff">Instalar como app</div>
+      <div style="font-size:11px;color:#5a5a7a;margin-top:1px">Sin navegador, icono en el escritorio</div>
+    </div>
+    <button onclick="doInstall()" style="background:#00d4ff;color:#000;border:none;padding:9px 16px;border-radius:6px;font-weight:700;font-size:13px;cursor:pointer">Instalar</button>
+    <button onclick="hideInstallBanner()" style="background:none;border:none;color:#5a5a7a;font-size:22px;cursor:pointer;padding:0 4px">✕</button>
+  `;
+  document.body.appendChild(banner);
+  // Añadir padding al main para que no tape contenido
+  document.getElementById('main').style.paddingBottom = '80px';
+}
+
+function hideInstallBanner(){
+  const b = document.getElementById('install-banner');
+  if(b) b.remove();
+  document.getElementById('main').style.paddingBottom = '';
+}
+
+async function doInstall(){
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const result = await deferredPrompt.userChoice;
+  if(result.outcome === 'accepted') hideInstallBanner();
+  deferredPrompt = null;
+}
+
+// ══════════════════════════════════════════════════════════════
+function expandImg(imgEl){
+  document.getElementById('img-overlay-img').src = imgEl.src;
+  document.getElementById('img-overlay').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeImgOverlay(e){
+  if(e && e.target === document.getElementById('img-overlay-img')) return;
+  document.getElementById('img-overlay').classList.remove('show');
+  document.body.style.overflow='';
+}
+
+init();
+</script>
+</body>
+</html>
