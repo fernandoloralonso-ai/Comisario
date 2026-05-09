@@ -86,16 +86,21 @@ function log(msg) {
 }
 
 function openZoom(divEl) {
+  event.stopPropagation();
   log('openZoom llamado');
   var img = divEl.querySelector('img');
   log('img.src = ' + img.src);
   var overlay = document.getElementById('overlay');
   var oimg = document.getElementById('overlay-img');
   oimg.src = img.src;
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  log('overlay clase: ' + overlay.className);
-  log('overlay display: ' + window.getComputedStyle(overlay).display);
+  // Use setTimeout to prevent immediate closeZoom trigger from same touch event
+  setTimeout(function(){
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    log('overlay clase: ' + overlay.className);
+    log('overlay display: ' + window.getComputedStyle(overlay).display);
+  }, 50);
+
 }
 
 function closeZoom() {

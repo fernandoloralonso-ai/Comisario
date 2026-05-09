@@ -1832,7 +1832,7 @@ function renderResult(r, offerAI){
     let imgHtml = '<div class="img-gallery">';
     imgHtml += '<div class="ig-label">📐 Diagramas oficiales FIA 2026</div>';
     itemImgs.forEach((src,i) => {
-      imgHtml += `<div class="img-wrap" onclick="expandImg(this.querySelector('img'))" style="cursor:zoom-in;"><img src="${src}" title="Diagrama ${i+1}" style="pointer-events:none;"></div>`;
+      imgHtml += `<div class="img-wrap" style="cursor:zoom-in;" onclick="event.stopPropagation();expandImg(this.querySelector('img'))"><img src="${src}" title="Diagrama ${i+1}" style="pointer-events:none;display:block;width:100%;"></div>`;
     });
     imgHtml += '</div>';
     html += imgHtml;
@@ -2202,14 +2202,25 @@ function showPilotItem(id) {
 
 // ══════════════════════════════════════════════════════════════
 function expandImg(imgEl){
-  var ov = document.getElementById('img-overlay');
-  var oimg = document.getElementById('img-overlay-img');
-  oimg.src = imgEl.src;
-  ov.classList.add('show');
-  document.body.style.overflow='hidden';
+  var src = imgEl.src;
+  setTimeout(function(){
+    var ov = document.getElementById('img-overlay');
+    var oimg = document.getElementById('img-overlay-img');
+    oimg.src = src;
+    ov.classList.add('show');
+    document.body.style.overflow='hidden';
+  }, 50);
 }
 function closeImgOverlay(e){
-  if(e && e.target && e.target.id === 'img-overlay-img') return;
+  // Only close if clicking the dark background directly, not the image
+  if(e && e.target && (e.target.id === 'img-overlay-img' || e.target.id === 'img-overlay-close')) {
+    if(e.target.id === 'img-overlay-close') {
+      document.getElementById('img-overlay').classList.remove('show');
+      document.body.style.overflow='';
+    }
+    return;
+  }
+  if(e && e.target && e.target.id !== 'img-overlay') return;
   document.getElementById('img-overlay').classList.remove('show');
   document.body.style.overflow='';
 }
