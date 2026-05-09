@@ -209,6 +209,26 @@ body{background:var(--dark);color:var(--text);font-family:var(--font-body);displ
 #img-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:999;justify-content:center;align-items:center;padding:16px;}
 #img-overlay.show{display:flex;}
 #img-overlay img{max-width:100%;max-height:90vh;object-fit:contain;border-radius:6px;}
+
+/* ── DISCLAIMER ── */
+.disclaimer{background:#1a0008;border:1px solid #5a0020;border-radius:6px;padding:9px 12px;margin-bottom:12px;font-size:11px;color:#d08080;line-height:1.6;}
+.disclaimer strong{color:#ff8080;}
+
+/* ── AVISO HV ── */
+.hv-banner{background:#1a1000;border:2px solid #ff6600;border-radius:8px;padding:11px 14px;margin-bottom:10px;}
+.hv-banner .hv-title{font-family:var(--font-head);font-size:14px;font-weight:900;color:#ff6600;letter-spacing:1px;margin-bottom:6px;}
+.hv-banner .hv-body{font-size:12px;color:#ffa040;line-height:1.7;}
+.hv-banner .hv-body li{margin-bottom:3px;}
+
+/* ── EQUIPAMIENTO PILOTO ── */
+.pilot-section{margin-bottom:14px;}
+.pilot-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:5px;cursor:pointer;transition:all .15s;}
+.pilot-item:active{border-color:var(--amber);background:#1a1000;}
+.pi-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+.pi-info{flex:1;}
+.pi-name{font-size:13px;font-weight:600;color:var(--text);}
+.pi-norm{font-family:var(--font-mono);font-size:9px;color:var(--muted);margin-top:2px;}
+.pi-tag{font-family:var(--font-mono);font-size:8px;padding:2px 5px;border-radius:3px;border:1px solid #5a3000;color:#ffab00;background:#1a0f00;}
 #img-overlay-close{position:absolute;top:16px;right:16px;background:var(--red);color:white;border:none;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 </style>
 </head>
@@ -249,7 +269,27 @@ body{background:var(--dark);color:var(--text);font-family:var(--font-body);displ
       <div class="ns-icon">🏁</div>
       <p><strong>Configura primero</strong><br>Elige organismo, categoría y grupo en la pestaña Config.</p>
     </div>
-    <div id="check-content" style="display:none"></div>
+    <div id="check-content" style="display:none">
+      <div class="disclaimer"><strong>⚠ APOYO DOCUMENTAL</strong> — Verificaciones formales siempre con documentos oficiales FIA/RFEDA en vigor. En discrepancia prevalece el texto oficial. No sustituye al criterio del Comisario Técnico.</div>
+      <div class="hv-banner" id="hv-warning" style="display:none">
+        <div class="hv-title">⚡ VEHÍCULO ELÉCTRICO / HÍBRIDO</div>
+        <div class="hv-body"><ul>
+          <li><strong>Guantes clase 0 (1000V) OBLIGATORIOS</strong> para cualquier intervención</li>
+          <li>Verificar LED estado HV (apagado = desconectado)</li>
+          <li>Cableado naranja = alta tensión — NO TOCAR sin EPIs HV</li>
+          <li>Accidente: battery quarantine — distancia mínima 5m</li>
+          <li>Ref: Art. 253-18, Art. 266-C Apéndice J FIA</li>
+        </ul></div>
+      </div>
+      <div class="chk-group">
+        <div class="chk-group-title">🧑 Equipamiento del Piloto — Apéndice L FIA 2026</div>
+        <div class="chk-item" onclick="showPilotItem('casco')"><span class="ci-icon">🪖</span><div class="ci-text"><b>Casco</b><br><span style="font-family:var(--font-mono);font-size:9px;color:var(--muted)">FIA 8860-2018/ABP · 8860-2010 · 8859-2015/2024 — Listas nº 33/49/69/107</span></div><span class="ci-badge pre">PRE</span><span class="ci-arr">›</span></div>
+        <div class="chk-item" onclick="showPilotItem('fhr')"><span class="ci-icon">🔗</span><div class="ci-text"><b>FHR / HANS</b><br><span style="font-family:var(--font-mono);font-size:9px;color:var(--muted)">FIA 8858-2010 — Lista nº 29 — collar mín. 60°</span></div><span class="ci-badge pre">PRE</span><span class="ci-arr">›</span></div>
+        <div class="chk-item" onclick="showPilotItem('ropa')"><span class="ci-icon">🦺</span><div class="ci-text"><b>Ropa ignífuga completa</b> (mono, guantes, balaclava, botas, calcetines)<br><span style="font-family:var(--font-mono);font-size:9px;color:var(--muted)">FIA 8856-2000 (Lista nº 27) o FIA 8856-2018 (Lista nº 74)</span></div><span class="ci-badge pre">PRE</span><span class="ci-arr">›</span></div>
+        <div class="chk-item" onclick="showPilotItem('equip_copiloto')"><span class="ci-icon">👤</span><div class="ci-text"><b>Equipamiento copiloto</b><br><span style="font-family:var(--font-mono);font-size:9px;color:var(--muted)">Idéntico al piloto — Apéndice L Cap.III</span></div><span class="ci-badge pre">PRE</span><span class="ci-arr">›</span></div>
+      </div>
+      <div id="chk-dynamic"></div>
+    </div>
   </div>
 
   <!-- OFFLINE -->
@@ -426,14 +466,22 @@ const PRELOADED = {
         'Placa de identificación individual en la jaula, fija (no temporal), conforme al certificado',
         'Protecciones acolchadas FIA 8857-2001 tipo A en todos los tubos del Dibujo 253-68',
         'Sin modificaciones (soldaduras, mecanizados) no autorizadas por el fabricante',
-        'Sin cables eléctricos ni canalizaciones de fluidos entre longerones y jaula'
+        'Sin cromado en ningún elemento de la armadura (Art.8.3 — expresamente prohibido)',
+        'Sin cables eléctricos entre longerones laterales y jaula (Art.8.3)',
+        'Sin canalizaciones de fluidos entre longerones y jaula, excepto lavaparabrisas (Art.8.3)',
+        'Sin canalizaciones del sistema de extinción entre longerones y jaula (Art.8.3)',
+        'Connections desmontables de la jaula homologada NO soldadas (Art.8.3)'
       ],
       criterios_mal: [
         'Sin documentación de homologación (ni ASN ni FIA)',
         'Placa de identificación ausente, movida o fijada provisionalmente (prohibido)',
         'Tubos sin protección acolchada FIA 8857-2001 tipo A o padding deteriorado',
         'Soldaduras de reparación no realizadas ni aprobadas por el fabricante original',
-        'Cromado de la jaula (expresamente prohibido en Art. 253-8.3)'
+        'Cromado en cualquier elemento de la armadura (expresamente prohibido Art.8.3)',
+        'Cables eléctricos entre longerones laterales y jaula (prohibido Art.8.3)',
+        'Canalizaciones de fluidos (excl. lavaparabrisas) entre longerones y jaula',
+        'Canalizaciones del sistema de extinción entre longerones y jaula',
+        'Conexiones desmontables soldadas tras ensamblaje (prohibido Art.8.3)'
       ],
       homologacion: 'Homologación ASN (copia auténtica + placa individual) o Homologación FIA (ficha del vehículo). Para homologados antes de 01.01.2021: Art. 253-8 del Apéndice J 2020. Padding: FIA 8857-2001 tipo A (Lista Técnica nº 23). Marcas padding: BSCI, SAFETY DEVICES, entre otras.',
       articulos_relacionados: 'Art. 253-8.1 (generalidades y tipos de homologación), Art. 253-8.2 (definiciones arceau/jaula), Art. 253-8.3 (uso y restricciones). Lista Técnica nº 23. Dibujo 253-68.'
@@ -471,16 +519,25 @@ const PRELOADED = {
       criterios_ok: [
         'Número homologación FIA 8865-2015 (formato EX.XXX.YY) o Lista nº 16 visible',
         'Agente extintor permitido y cantidad mínima reglamentaria verificada',
-        'Fecha de verificación/recarga no superior a 2 años',
-        'Fijación con mínimo 2 correas metálicas con tornillo + topes anti-torpedo',
-        'Activación exterior marcada con "E" roja en círculo blanco borde rojo ≥10 cm'
+        'Art.7.3.5: fecha de próxima verificación visible en el extintor (≤2 años desde relleno o última revisión)',
+        'Art.7.3.6: cierres metálicos de liberación rápida (mín. 2) con correas metálicas + topes anti-torpedo',
+        'Art.7.3.7: fácilmente accesible para piloto Y copiloto',
+        'Caja eléctrica NO instalada bajo los asientos (Art.7.2.3)',
+        'Boquillas NO apuntando directamente a la cabeza de los ocupantes (Art.7.2.5)',
+        'Art.7.2.3: activación exterior "E" roja en círculo blanco borde rojo ≥10 cm',
+        'Rally FIA desde 01.01.2024: DOS extintores obligatorios',
+        'Rally FIA desde 01.01.2026: ambos extintores compatibles con alta tensión HV'
       ],
       criterios_mal: [
         'Sin homologación FIA (no en Lista nº 52 ni nº 16)',
         'Agente extintor BCF o NAF (expresamente prohibidos por Art. 253-7)',
-        'Recarga/verificación caducada (>2 años desde última verificación)',
-        'Fijación con correas plásticas o sin topes anti-torpedo',
-        'Boquillas apuntando directamente a la cabeza de los ocupantes'
+        'Fecha de próxima verificación superada (>2 años desde relleno/revisión, Art.7.3.5)',
+        'Art.7.3.6: cierres no metálicos o no de liberación rápida (prohibido)',
+        'Sin topes anti-torpedo en fijación del extintor',
+        'Caja eléctrica instalada bajo los asientos (expresamente prohibido Art.7.2.3)',
+        'Boquillas apuntando directamente a la cabeza de los ocupantes (prohibido Art.7.2.5)',
+        'Rally FIA desde 01.01.2024: solo 1 extintor (obligatorios 2, Art.7.3.1)',
+        'Rally FIA desde 01.01.2026: extintores no compatibles con alta tensión HV'
       ],
       homologacion: 'FIA 8865-2015 (Lista Técnica nº 52). Marcas: LIFELINE (Zero 362O, ZERO 275), SPA DESIGN, FEV (FX G-TEC), OMP (CESAL4L/4S), SPARCO, entre otras. Norma FIA 1999 (Lista nº 16): FEV, OMP Ecolife, SPARCO FireWarrior.',
       articulos_relacionados: 'Art. 253-7.1 (aplicación por categoría), Art. 253-7.2 (sistemas instalados), Art. 253-7.3 (extintores manuales y cantidades mínimas). Listas Técnicas nº 16 y nº 52.'
@@ -536,7 +593,7 @@ const PRELOADED = {
   cortacorrientes: {
     default: {
       articulo_principal: 'Art. 253-13',
-      titulo_articulo: 'Coupe-circuit général / Cortacorriente general',
+      titulo_articulo: 'Coupe-circuit général / Cortacircuitos general',
       reglamento: 'Apéndice J FIA — Art. 253-13 (WMSC 26.03.2026, publicado 27.03.2026)',
       requisitos: 'Corta TODOS los circuitos eléctricos (batería, alternador/dinamo, luces, bocinas, encendido, controles eléctricos, etc.) y también detiene el motor. Debe ser un modelo antideflagrante. Accesible desde el interior por piloto y copiloto sentados con harnés abrochado, y desde el exterior. Exterior: mando situado obligatoriamente en la parte inferior de un montante del parabrisas (vehículos cerrados). Señalización exterior: rayo rojo en triángulo azul con borde blanco, base mínima 12 cm. Para motores Diesel sin inyectores electrónicos: acoplado a obturador de admisión. Obligatorio en carreras de velocidad en circuito, rally y carreras de montaña.',
       criterios_ok: [
@@ -683,9 +740,9 @@ const PRELOADED = {
   // Art. 253-12 / Art. 253-13 Apéndice J FIA 2026
   bateria: {
     default: {
-      articulo_principal: 'Art. 253-12 / Art. 253-13',
+      articulo_principal: 'Art. 253-13 (cortacircuitos) — NOTA: no existe Art.253-12 de batería; Art.12 = fijaciones de parabrisas',
       titulo_articulo: 'Fijación y protección de batería',
-      reglamento: 'Apéndice J FIA — Arts. 253-12 y 253-13 (WMSC 26.03.2026)',
+      reglamento: 'Apéndice J FIA — Art. 253-13 (WMSC 26.03.2026). Art.12 = fijaciones parabrisas, no batería',
       requisitos: 'La batería debe estar firmemente fijada impidiendo desplazamiento en accidente o vuelco. Si está en el habitáculo: caja estanca de material no conductor. Terminales protegidos contra cortocircuito. El cortacorriente (Art. 253-13) debe cortar también el alternador. Para vehículos eléctricos e híbridos: requisitos adicionales del Art. 253-18 y Art. 266-C del Apéndice J. Cables protegidos y alejados de fuentes de calor.',
       criterios_ok: [
         'Batería fijada con sistema metálico resistente que impida desplazamiento en vuelco',
@@ -702,7 +759,7 @@ const PRELOADED = {
         'En habitáculo sin caja estanca de material no conductor'
       ],
       homologacion: 'Sin homologación específica de producto. Cumplimiento funcional Arts. 253-12 y 253-13.',
-      articulos_relacionados: 'Art. 253-12 (fijación y protección), Art. 253-13 (cortacorriente), Art. 253-18 (vehículos eléctricos/híbridos), Art. 266-C Apéndice J FIA'
+      articulos_relacionados: 'Art. 253-13 Apéndice J FIA (cortacircuitos general), Art. 253-18 y Art. 266-C (vehículos eléctricos/híbridos)'
     }
   },
 
@@ -735,9 +792,9 @@ const PRELOADED = {
   // Art. 253-15 Apéndice J FIA 2026 + Reglamento Deportivo Rally
   luz_polvo: {
     fia_rally: {
-      articulo_principal: 'Art. 253-15 / Reglamento Deportivo Rally FIA',
+      articulo_principal: 'Reglamento Particular de la Prueba / Reglamento Deportivo FIA Rally',
       titulo_articulo: 'Luz trasera de posición — Luz de polvo',
-      reglamento: 'Apéndice J FIA Art. 253 + Reglamento Deportivo Rally FIA 2026',
+      reglamento: 'Reglamento Deportivo FIA Rally 2026 + Reglamento Particular. NOTA: Art.253-15 es pantalla cortafuegos motor/habitáculo, NO la luz trasera',
       requisitos: 'Obligatoria luz roja trasera adicional de potencia suficiente (mínimo equivalente a 21W), visible en condiciones adversas (polvo, lluvia, niebla). Debe funcionar independientemente del pedal de freno, mediante interruptor propio accesible para el piloto. En tramos nocturnos: se añaden requisitos de iluminación del Reglamento Particular.',
       criterios_ok: [
         'Luz roja trasera presente y operativa',
@@ -752,17 +809,17 @@ const PRELOADED = {
         'Interruptor inaccesible para el piloto con harnés puesto'
       ],
       homologacion: 'Sin homologación específica de producto. Cumplimiento funcional.',
-      articulos_relacionados: 'Art. 253-15 Apéndice J FIA, Reglamento Particular de la prueba'
+      articulos_relacionados: 'Reglamento Particular de la Prueba. NOTA: Art.253-15 Apéndice J = pantalla cortafuegos motor/habitáculo (no luz trasera)'
     },
     default: {
-      articulo_principal: 'Art. 253-15',
+      articulo_principal: 'Reglamento Particular / Reglamento Deportivo',
       titulo_articulo: 'Luz trasera (polvo/freno)',
-      reglamento: 'Apéndice J FIA — Art. 253-15',
+      reglamento: 'Reglamento Particular + Reglamento Deportivo',
       requisitos: 'Luz roja trasera operativa, visible en condiciones adversas, con interruptor propio accesible al piloto, funcionando independientemente del freno.',
       criterios_ok: ['Operativa y visible en condiciones adversas', 'Potencia suficiente (≥21W equiv.)', 'Interruptor propio accesible', 'Independiente del pedal de freno'],
       criterios_mal: ['Inoperativa o ausente', 'Solo funciona al pisar el freno', 'Sin interruptor propio', 'Potencia insuficiente'],
       homologacion: 'Sin homologación específica.',
-      articulos_relacionados: 'Art. 253-15 Apéndice J FIA'
+      articulos_relacionados: 'Reglamento Particular de la Prueba'
     }
   },
 
@@ -1087,12 +1144,11 @@ canalizaciones: `
 
 // ══ ART.4 ══
 acelerador: `
-<span class="to-art">ART. 4 — SEGURIDAD DE LOS SISTEMAS DE FRENADO Y DIRECCIÓN</span>
-<span class="to-sub">Frenado</span>
-<p>Doble circuito accionado por el mismo pedal: la acción del pedal debe ejercerse normalmente sobre todas las ruedas; en caso de fuga en cualquier punto de la canalización o de cualquier fallo en la transmisión del freno, la acción del pedal debe continuar ejerciéndose al menos sobre dos ruedas.</p>
-<p><strong>Aplicación:</strong> Si este sistema está montado en serie, no es necesaria ninguna modificación.</p>
-<span class="to-sub">Dirección</span>
-<p>El sistema de bloqueo del antirrobo de dirección puede ser inutilizado. El sistema de regulación de la columna debe estar bloqueado y ser ajustable únicamente mediante herramientas.</p>
+<span class="to-art">ART. 4 — PEDAL DE ACELERADOR (Apéndice J Art. 253)</span>
+<p>El pedal de acelerador debe retornar solo a la posición de reposo (mariposa cerrada) al soltar el pie, independientemente de cualquier otro sistema de control del cuerpo de mariposa.</p>
+<p>En vehículos con acelerador electrónico (throttle-by-wire / drive-by-wire): debe existir un sistema de seguridad que garantice el cierre de la mariposa en caso de fallo.</p>
+<p>El recorrido del pedal no debe estar obstruido por alfombrilla, tubos, cables ni ningún otro elemento.</p>
+<p class="to-alerta"><em>Referencia: este requisito forma parte de las verificaciones generales de seguridad del vehículo. El Art. 253-4 regula el sistema de doble circuito de frenos y el bloqueo de la columna de dirección. El retorno del acelerador se verifica funcionalmente en todas las competiciones. No confundir con Art.15 (pantalla cortafuegos motor/habitáculo).</em></p>
 `,
 
 // ══ ART.5 ══
@@ -1105,12 +1161,15 @@ cierres: `
 
 // ══ ART.9 ══
 direccion: `
-<span class="to-art">ART. 9 — RETROVISIÓN</span>
-<p>La visión hacia atrás debe asegurarse mediante dos retrovisores exteriores (uno en el lado derecho y uno en el lado izquierdo). Estos retrovisores pueden ser los de serie.</p>
-<p>Cada retrovisor debe tener una superficie reflectante de al menos <strong>90 cm²</strong>. El retrovisor interior es facultativo.</p>
+<span class="to-art">ART. 4 — SEGURIDAD DE LOS SISTEMAS DE FRENADO Y DIRECCIÓN</span>
+<span class="to-sub">Frenado</span>
+<p>Doble circuito accionado por el mismo pedal: la acción del pedal debe ejercerse normalmente sobre todas las ruedas; en caso de fuga en cualquier punto de la canalización o de cualquier fallo en la transmisión del freno, la acción del pedal debe continuar ejerciéndose al menos sobre dos ruedas.</p>
+<p><strong>Aplicación:</strong> Si este sistema está montado en serie, no es necesaria ninguna modificación.</p>
+<span class="to-sub">Dirección</span>
+<p>El sistema de bloqueo del antirrobo de dirección puede ser inutilizado. El sistema de regulación de la columna debe estar bloqueado y ser ajustable únicamente mediante herramientas.</p>
+<span class="to-art">ART. 9 — RETROVISIÓN (referencia para retrovisores)</span>
+<p>La visión hacia atrás debe asegurarse mediante dos retrovisores exteriores (uno en el lado derecho y uno en el lado izquierdo). Pueden ser los de serie. Cada retrovisor debe tener una superficie reflectante de al menos <strong>90 cm²</strong>. El retrovisor interior es facultativo.</p>
 <p><strong>Aplicación:</strong> Grupos N, A, R (o Rally5/4/3/2), R-GT, Super 2000 Rallyes y WRC.</p>
-<p>En el cuerpo del retrovisor se autoriza una abertura de ventilación (superficie máxima de 25 cm² por retrovisor). La puerta puede modificarse en el punto de fijación del retrovisor para realizar una abertura equivalente de 25 cm² máximo.</p>
-<p><strong>Aplicación:</strong> Solo en rallye, Grupos N, A, R (o Rally5/4/3/2), R-GT, Super 2000 Rallyes y WRC.</p>
 `,
 
 // ══ ART.10 ══
@@ -1285,17 +1344,18 @@ extincion: `
 </ul>
 <span class="to-sub">7.3.4</span>
 <p>Todos los extintores deben estar presurizados según las instrucciones del fabricante. Para el polvo: 8 bares mínimo, 13,5 bares máximo. Los extintores de AFFF, 4F Universal y Ecolife Plus deben estar equipados con un sistema de verificación de la presión del contenido.</p>
-<span class="to-sub">7.3.5 Información visible en cada extintor</span>
+<span class="to-sub">7.3.5 Información visible en cada extintor (Art. 253-7.3.5)</span>
 <ul>
-<li>Nombre del fabricante</li>
-<li>Número de serie</li>
-<li>Tipo y cantidad de agente extintor</li>
-<li>Número de homologación FIA</li>
-<li>Fecha de la última verificación/recarga</li>
-<li>Clase de incendio</li>
+<li>Capacidad</li>
+<li>Tipo de agente extintor</li>
+<li>Peso o volumen del agente extintor</li>
+<li><strong>Fecha en la que debe verificarse el extintor</strong>, que no debe ser superior a <strong>dos años</strong> después de la fecha de relleno o de la última verificación, o fecha límite de validez correspondiente (Art. 7.3.5).</li>
 </ul>
+<span class="to-sub">7.3.6 Fijación y protección del extintor manual (Art. 253-7.3.6)</span>
+<p>Cada extintor debe estar adecuadamente protegido. Sus fijaciones deben ser capaces de resistir una deceleración de <strong>25 g</strong>. Además, solo se aceptan <strong>cierres metálicos de liberación rápida (dos como mínimo), con correas metálicas</strong>. Se requieren topes anti-torpedo.</p>
+<span class="to-sub">7.3.7 Accesibilidad (Art. 253-7.3.7)</span>
+<p>Los extintores deben ser <strong>fácilmente accesibles para el piloto y el copiloto</strong>.</p>
 `,
-
 // ══ ART.8 (jaula) ══
 estructura: `
 <span class="to-art">ART. 8 — ARMADURA DE SEGURIDAD</span>
@@ -1493,7 +1553,7 @@ const CHECKLIST=[
     {id:'extincion',      icon:'🧯',text:'Sistema de extinción'},
     {id:'deposito',       icon:'⛽',text:'Depósito / Emplazamiento'},
     {id:'canalizaciones', icon:'🛡️',text:'Protección canalizaciones externas'},
-    {id:'cortacorrientes',icon:'🔌',text:'Cortacorrientes / Master switch'},
+    {id:'cortacorrientes',icon:'🔌',text:'Cortacircuitos general / Master switch'},
   ]},
   {group:'Carrocería y Protecciones',items:[
     {id:'parabrisas',icon:'🪟',text:'Parabrisas o red metálica'},
@@ -1629,7 +1689,26 @@ function renderChecklist(){
   if(!state.cat||!state.group) return;
   document.getElementById('check-no-sel').style.display='none';
   const cc=document.getElementById('check-content');
-  cc.style.display='block'; cc.innerHTML='';
+  cc.style.display='block';
+  // Preserve static content (disclaimer + HV warning + pilot equipment)
+  // Only rebuild the dynamic vehicle checklist groups
+  let dynEl=document.getElementById('chk-dynamic');
+  if(!dynEl){
+    dynEl=document.createElement('div');
+    dynEl.id='chk-dynamic';
+    cc.appendChild(dynEl);
+  }
+  dynEl.innerHTML='';
+  // Show/hide HV warning based on category
+  const hvCats=['fia_circuito_gt','fia_circuito_fe'];
+  const hvEl=document.getElementById('hv-warning');
+  if(hvEl) hvEl.style.display='none'; // default hidden; show if HV category selected
+  // Add vehicle section header
+  let secHdr=document.createElement('div');
+  secHdr.className='sec-label';
+  secHdr.style.marginTop='10px';
+  secHdr.textContent='Verificaciones del Vehículo — Art. 253 Apéndice J FIA 2026';
+  dynEl.appendChild(secHdr);
   CHECKLIST.forEach(grp=>{
     const wrap=document.createElement('div');
     wrap.className='chk-group';
@@ -1646,7 +1725,7 @@ function renderChecklist(){
       </div>`;
     });
     wrap.innerHTML=html;
-    cc.appendChild(wrap);
+    dynEl.appendChild(wrap);
   });
 }
 function esc(s){return s.replace(/'/g,"\\'");}
@@ -1962,6 +2041,165 @@ async function doInstall(){
   deferredPrompt = null;
 }
 
+
+// ══════════════════════════════════════════════════════════════
+// EQUIPAMIENTO DEL PILOTO — Datos de verificación
+// Fuente: Apéndice L FIA 2026 (Cap. III) WMSC 26.03.2026
+// ══════════════════════════════════════════════════════════════
+const PILOT_ITEMS = {
+  casco: {
+    icon: '🪖',
+    title: 'Casco de competición',
+    art: 'Apéndice L Cap.III Art.1 — WMSC 26.03.2026',
+    normas_validas: [
+      'FIA 8860-2018-ABP (Lista nº 69) — obligatorio F1, F2, F3, Fórmula Regional, WEC, WRC P1/P2',
+      'FIA 8860-2018 (Lista nº 69) — obligatorio WEC, WRC P1/P2, Rallycross World, GT World Cup',
+      'FIA 8860-2010 (Lista nº 33) — aceptado con FHR excepto categorías que exigen ABP',
+      'FIA 8859-2024 o 8859-2024-ABP (Lista nº 107) — válido con FHR',
+      'FIA 8859-2015 (Lista nº 49) — válido con FHR (salvo categorías que exigen norma superior)',
+    ],
+    criterios_ok: [
+      'Número de homologación FIA legible en etiqueta (formato según Lista Técnica)',
+      'Norma correcta para la categoría/campeonato en que participa',
+      'Sin modificaciones respecto a especificación de fábrica',
+      'Peso máximo: ≤1900g integral / ≤1700g abierto, incluyendo todos los accesorios',
+      'Visera marcada con sticker FIA (obligatorio si fabricada desde 01.01.2016)',
+      'Solo accesorios homologados FIA (cámara de casco solo si aprobada — invalida homologación)',
+      'Casco integral obligatorio en: vehículos de habitáculo abierto, sin parabrisas, WEC',
+    ],
+    criterios_mal: [
+      'Sin número de homologación FIA o ilegible',
+      'Norma inferior a la exigida por el campeonato',
+      'Modificado (pintura incorrecta, accesorios no homologados) — invalida homologación FIA',
+      'Peso superior al máximo (1900g integral / 1700g abierto)',
+      'Visera sin sticker FIA (si fabricada desde 01.01.2016)',
+      'Casco abierto en vehículo de habitáculo abierto (obligatorio integral)',
+      'Cámara de casco no aprobada por FIA (invalida homologación)',
+    ],
+    fuente: 'Apéndice L FIA 2026 Cap.III Art.1, Listas Técnicas nº 25, 33, 49, 69, 107'
+  },
+  fhr: {
+    icon: '🔗',
+    title: 'Sistema de Retención Frontal de la Cabeza (FHR/HANS)',
+    art: 'Apéndice L Cap.III Art.3 — WMSC 26.03.2026',
+    normas_validas: [
+      'FIA 8858-2010 (Lista Técnica nº 29) — norma vigente obligatoria',
+      'Compatible con: cascos FIA 8860 (Listas nº 33, 69) y FIA 8859 (Listas nº 49, 107)',
+      'Sistema de correas (tether): FIA 8858-2010 — anchorage del casco: FIA 8858-2010',
+    ],
+    criterios_ok: [
+      'Número de homologación FIA 8858 visible (Lista Técnica nº 29)',
+      'Ángulo mínimo del collar HANS: 60° respecto a la horizontal',
+      'Relleno entre piloto y yugo HANS: máx. 15mm con harnés abrochado (cubierto con material ignífugo ISO 15025)',
+      'Relleno no sobresale más de 8mm a cada lado del yugo HANS',
+      'Correas (tethers) homologadas FIA 8858-2010',
+      'Anclajes del casco (helmet anchorage) homologados FIA 8858-2010',
+      'Compatible con el casco: 8860 → solo con tethers 8858-2010; 8859 → solo con tethers 8858-2010',
+      'Instalado según guía: "Guide and installation specification for HANS® devices in racing"',
+    ],
+    criterios_mal: [
+      'Sin homologación FIA 8858 o Lista Técnica nº 29',
+      'Ángulo del collar inferior a 60° respecto a la horizontal',
+      'Relleno entre piloto y yugo mayor de 15mm',
+      'Tethers de norma 8858-2002 con dispositivo HANS 8858-2010 (combinación no permitida)',
+      'Cualquier dispositivo de protección de cabeza/cuello NO homologado FIA 8858 (prohibido)',
+    ],
+    fuente: 'Apéndice L FIA 2026 Cap.III Art.3, Lista Técnica nº 29'
+  },
+  ropa: {
+    icon: '🦺',
+    title: 'Ropa ignífuga — Conjunto completo',
+    art: 'Apéndice L Cap.III Art.2 — WMSC 26.03.2026',
+    normas_validas: [
+      'FIA 8856-2000 (Lista Técnica nº 27) — norma base válida (salvo campeonatos que exigen 8856-2018)',
+      'FIA 8856-2018 (Lista Técnica nº 74) — OBLIGATORIA en: F1, F2, F3, FRegional, FE, WEC(2021+), WRC, WRX, GT World Cup, F3 Regional, ERC, Regional Rally, Cross-Country World, Bajas World, Extreme H',
+      'Guantes F1 desde 2023: nº homologación ≥ 23 (formato DC.XXX.23-G)',
+    ],
+    criterios_ok: [
+      'Mono homologado FIA (número y etiqueta visibles) — norma adecuada a la categoría',
+      'Guantes homologados FIA — par completo',
+      'Balaclava/pasamontañas homologado FIA',
+      'Calcetines homologados FIA',
+      'Botas ignífugas homologadas FIA',
+      'Ropa interior larga (top + bottom) homologada FIA',
+      'Solapamientos correctos: balaclava sobre mono ≥3cm (frente: ≥8cm); ropa interior superior/inferior ≥7cm en cintura',
+      'Cuello, muñecas y tobillos cubiertos por mínimo 2 capas de equipamiento de seguridad',
+      'Ropa no excesivamente ajustada (reduce nivel de protección)',
+    ],
+    criterios_mal: [
+      'Mono sin etiqueta de homologación FIA o con norma insuficiente para la categoría',
+      'Sin guantes o guantes sin homologación FIA',
+      'Sin balaclava homologada FIA',
+      'Sin calcetines ni botas ignífugas FIA',
+      'Sin ropa interior FIA (solo acceptable con justificación médica documentada)',
+      'Materiales sintéticos no ignífugos en contacto directo con la piel del piloto',
+      'Solapamientos insuficientes (riesgo de exposición de piel en impacto)',
+      'Monoconductor: rodilleras/coderas no conformes ISO 15025 sobre el mono (solo se permiten conformes)',
+      'Modificaciones o impresiones en el mono no realizadas por el fabricante',
+    ],
+    fuente: 'Apéndice L FIA 2026 Cap.III Art.2, Lista Técnica nº 27 (8856-2000) y nº 74 (8856-2018)'
+  },
+  equip_copiloto: {
+    icon: '👤',
+    title: 'Equipamiento del copiloto',
+    art: 'Apéndice L Cap.III — WMSC 26.03.2026',
+    normas_validas: [
+      'Idéntico al piloto en todos los elementos',
+      'Guantes: opcionales para copilotos según Art.2 Apéndice L (en algunas categorías)',
+    ],
+    criterios_ok: [
+      'Casco FIA homologado — misma norma que el piloto',
+      'FHR/HANS FIA 8858 — mismo estándar que el piloto',
+      'Mono ignífugo FIA — norma adecuada a la categoría',
+      'Balaclava, calcetines y botas ignífugas FIA',
+      'Ropa interior FIA (si no dispensa médica)',
+    ],
+    criterios_mal: [
+      'Casco sin homologación FIA o norma inferior a la exigida',
+      'Sin FHR (si es obligatorio para la categoría)',
+      'Sin equipamiento ignífugo o con norma insuficiente',
+    ],
+    fuente: 'Apéndice L FIA 2026 Cap.III Arts.1-5'
+  }
+};
+
+function showPilotItem(id) {
+  const item = PILOT_ITEMS[id];
+  if (!item) return;
+  let html = '';
+  // Art reference
+  html += '<div class="art-ref-box"><div class="art-chip">' + item.art + '</div><div class="art-title">' + item.title + '</div></div>';
+  // Normas válidas
+  if (item.normas_validas) {
+    html += '<div class="section"><div class="sec-head"><span class="sec-num">NORMAS</span><span class="sec-title">Homologaciones válidas</span></div><div class="sec-body"><ul>';
+    item.normas_validas.forEach(n => { html += '<li>' + n + '</li>'; });
+    html += '</ul></div></div>';
+  }
+  // Criterios OK
+  html += '<div class="crit-label ok">✓ CORRECTO SI...</div>';
+  item.criterios_ok.forEach(c => {
+    html += '<div class="crit-tag" style="background:#001a08;border:1px solid #003014;color:#80d080;border-radius:5px;margin-bottom:4px"><span>✓</span>' + c + '</div>';
+  });
+  // Criterios MAL
+  html += '<div class="crit-label mal" style="margin-top:10px">✗ RECHAZAR SI...</div>';
+  item.criterios_mal.forEach(c => {
+    html += '<div class="crit-tag" style="background:#180008;border:1px solid #3a001a;color:#d08080;border-radius:5px;margin-bottom:4px"><span>✗</span>' + c + '</div>';
+  });
+  // Fuente
+  html += '<div class="src-row"><span style="font-family:var(--font-mono);font-size:9px;color:var(--muted)">FUENTE:</span><span style="font-family:var(--font-mono);font-size:10px;color:var(--cyan)">' + item.fuente + '</span></div>';
+
+  // Show in modal
+  curItem = {id: id, icon: item.icon, text: item.title};
+  document.getElementById('m-icon').textContent = item.icon;
+  document.getElementById('m-title').textContent = item.title;
+  document.getElementById('m-meta').innerHTML = '<span class="meta-tag" style="color:var(--amber);border-color:#5a3000;background:#1a0f00">Apéndice L FIA 2026</span><span class="meta-tag" style="color:var(--green);border-color:#003014;background:#001508">● Offline</span>';
+  document.getElementById('mf-org').textContent = 'FIA';
+  document.getElementById('mf-reg').textContent = 'Apéndice L FIA 2026 — Cap. III — Equipamiento del Piloto';
+  document.getElementById('mbody').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
 // ══════════════════════════════════════════════════════════════
 function expandImg(imgEl){
   document.getElementById('img-overlay-img').src = imgEl.src;
@@ -1976,5 +2214,9 @@ function closeImgOverlay(e){
 
 init();
 </script>
+<div id="img-overlay" onclick="closeImgOverlay(event)">
+  <button id="img-overlay-close" onclick="closeImgOverlay()">✕</button>
+  <img id="img-overlay-img" src="" alt="Diagrama FIA">
+</div>
 </body>
 </html>
