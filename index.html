@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Comisario PRO">
@@ -206,9 +206,9 @@ body{background:var(--dark);color:var(--text);font-family:var(--font-body);displ
 .img-wrap img{max-width:100%;height:auto;display:block;margin:0 auto;cursor:zoom-in;filter:brightness(1.1) contrast(1.05);}
 
 /* ── IMAGE FULLSCREEN ── */
-#img-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:999;justify-content:center;align-items:center;padding:16px;}
-#img-overlay.show{display:flex;}
-#img-overlay img{max-width:100%;max-height:90vh;object-fit:contain;border-radius:6px;}
+#img-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.96);z-index:99999;overflow:auto;-webkit-overflow-scrolling:touch;}#img-overlay.show{display:flex;align-items:center;justify-content:center;padding:40px 12px 12px;}
+#img-overlay.show{display:block;}
+#img-overlay img{width:100%;height:auto;display:block;touch-action:manipulation;border-radius:4px;}
 
 /* ── DISCLAIMER ── */
 .disclaimer{background:#1a0008;border:1px solid #5a0020;border-radius:6px;padding:9px 12px;margin-bottom:12px;font-size:11px;color:#d08080;line-height:1.6;}
@@ -2217,8 +2217,8 @@ function closeImgOverlay(e){
 init();
 </script>
 <div id="img-overlay" onclick="closeImgOverlay(event)">
-  <button id="img-overlay-close" style="position:absolute;top:16px;right:16px;background:#E8001D;color:white;border:none;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer;z-index:10000;" onclick="closeImgOverlay()">✕</button>
-  <img id="img-overlay-img" src="" alt="Diagrama FIA" style="max-width:100%;max-height:90vh;object-fit:contain;border-radius:6px;cursor:default;" onclick="event.stopPropagation()">
+  <button id="img-overlay-close" onclick="closeImgOverlay()" style="position:fixed;top:12px;right:12px;background:#E8001D;color:white;border:none;width:44px;height:44px;border-radius:50%;font-size:22px;cursor:pointer;z-index:100000;line-height:1;">✕</button>
+  <img id="img-overlay-img" src="" alt="Diagrama FIA" onclick="event.stopPropagation()" style="max-width:100%;max-height:85vh;width:auto;height:auto;display:block;border-radius:6px;cursor:default;">
 </div>
 </body>
 </html>
