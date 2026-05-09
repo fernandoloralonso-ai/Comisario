@@ -1832,7 +1832,7 @@ function renderResult(r, offerAI){
     let imgHtml = '<div class="img-gallery">';
     imgHtml += '<div class="ig-label">📐 Diagramas oficiales FIA 2026</div>';
     itemImgs.forEach((src,i) => {
-      imgHtml += `<div class="img-wrap"><img src="${src}" loading="lazy" onclick="expandImg(this)" title="Diagrama ${i+1}"></div>`;
+      imgHtml += `<div class="img-wrap" onclick="expandImg(this.querySelector('img'))" style="cursor:zoom-in;"><img src="${src}" title="Diagrama ${i+1}" style="pointer-events:none;"></div>`;
     });
     imgHtml += '</div>';
     html += imgHtml;
@@ -2202,12 +2202,14 @@ function showPilotItem(id) {
 
 // ══════════════════════════════════════════════════════════════
 function expandImg(imgEl){
-  document.getElementById('img-overlay-img').src = imgEl.src;
-  document.getElementById('img-overlay').classList.add('show');
+  var ov = document.getElementById('img-overlay');
+  var oimg = document.getElementById('img-overlay-img');
+  oimg.src = imgEl.src;
+  ov.classList.add('show');
   document.body.style.overflow='hidden';
 }
 function closeImgOverlay(e){
-  if(e && e.target === document.getElementById('img-overlay-img')) return;
+  if(e && e.target && e.target.id === 'img-overlay-img') return;
   document.getElementById('img-overlay').classList.remove('show');
   document.body.style.overflow='';
 }
@@ -2215,8 +2217,8 @@ function closeImgOverlay(e){
 init();
 </script>
 <div id="img-overlay" onclick="closeImgOverlay(event)">
-  <button id="img-overlay-close" onclick="closeImgOverlay()">✕</button>
-  <img id="img-overlay-img" src="" alt="Diagrama FIA">
+  <button id="img-overlay-close" style="position:absolute;top:16px;right:16px;background:#E8001D;color:white;border:none;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer;z-index:10000;" onclick="closeImgOverlay()">✕</button>
+  <img id="img-overlay-img" src="" alt="Diagrama FIA" style="max-width:100%;max-height:90vh;object-fit:contain;border-radius:6px;cursor:default;" onclick="event.stopPropagation()">
 </div>
 </body>
 </html>
