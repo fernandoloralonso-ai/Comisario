@@ -206,7 +206,9 @@ body{background:var(--dark);color:var(--text);font-family:var(--font-body);displ
 .img-wrap img{max-width:100%;height:auto;display:block;margin:0 auto;cursor:zoom-in;filter:brightness(1.1) contrast(1.05);}
 
 /* ── IMAGE FULLSCREEN ── */
-#img-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.96);z-index:99999;overflow:auto;-webkit-overflow-scrolling:touch;}#img-overlay.show{display:flex;align-items:center;justify-content:center;padding:40px 12px 12px;}
+#img-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.96);z-index:99999;overflow:hidden;touch-action:none;}
+#img-overlay.show{display:flex;align-items:center;justify-content:center;}
+#img-overlay-img{display:block;max-width:100%;max-height:100vh;object-fit:contain;transform-origin:center center;will-change:transform;touch-action:none;user-select:none;-webkit-user-select:none;}
 #img-overlay.show{display:block;}
 #img-overlay img{width:100%;height:auto;display:block;touch-action:manipulation;border-radius:4px;}
 
@@ -1680,36 +1682,104 @@ function selGroup(g){
   document.getElementById('gb-'+g.id).classList.add('active');
   renderChecklist();
 }
+// TAP DETECTION — distinguishes tap from scroll
+function addTapListener(el, cb){
+  var sx, sy, moved;
+  el.addEventListener('touchstart', function(e){
+    sx=e.touches[0].clientX; sy=e.touches[0].clientY; moved=false;
+  },{passive:true});
+  el.addEventListener('touchmove', function(e){
+    if(Math.abs(e.touches[0].clientX-sx)>8||Math.abs(e.touches[0].clientY-sy)>8) moved=true;
+  },{passive:true});
+  el.addEventListener('touchend', function(e){
+    if(!moved){e.preventDefault(); cb(e);}
+  },{passive:false});
+  el.addEventListener('click', cb);
+}
+
+var _overlayOpen=false;
+
 function initOverlayListeners(){
   var ov = document.getElementById('img-overlay');
   var oimg = document.getElementById('img-overlay-img');
   var cbtn = document.getElementById('img-overlay-close');
 
-  // Overlay background: close on touch or click
-  ov.addEventListener('touchend', function(e){
-    e.preventDefault();
-    if(e.target === ov) closeImgOverlay();
-  }, {passive:false});
-  ov.addEventListener('click', function(e){
-    if(e.target === ov) closeImgOverlay();
-  });
-
-  // Close button
-  cbtn.addEventListener('touchend', function(e){
-    e.preventDefault();
-    e.stopPropagation();
-    closeImgOverlay();
-  }, {passive:false});
-  cbtn.addEventListener('click', function(e){
-    e.stopPropagation();
+  // Close button tap
+  addTapListener(cbtn, function(e){
+    e.stopPropagation && e.stopPropagation();
     closeImgOverlay();
   });
 
-  // Image: stop propagation so tap on image doesn't close overlay
+  // Close overlay on tap of background (not image)
+  addTapListener(ov, function(e){
+    if(e.target === ov && _overlayScale <= 1) closeImgOverlay();
+  });
+
+  // ── PINCH ZOOM + DRAG ──────────────────────────────────────
+  var touches = [];
+
+  function getDist(t1, t2){
+    var dx = t1.clientX - t2.clientX, dy = t1.clientY - t2.clientY;
+    return Math.sqrt(dx*dx + dy*dy);
+  }
+  function getMid(t1, t2){
+    return {x:(t1.clientX+t2.clientX)/2, y:(t1.clientY+t2.clientY)/2};
+  }
+
+  oimg.addEventListener('touchstart', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    touches = Array.from(e.touches);
+    if(touches.length === 2){
+      _pinchStartDist = getDist(touches[0], touches[1]);
+      _pinchStartScale = _overlayScale;
+      _isDragging = false;
+    } else if(touches.length === 1){
+      _dragStartX = touches[0].clientX - _overlayX;
+      _dragStartY = touches[0].clientY - _overlayY;
+      _dragLastX = touches[0].clientX;
+      _dragLastY = touches[0].clientY;
+      _isDragging = true;
+      // Double-tap to reset zoom
+      var now = Date.now();
+      if(now - _lastTap < 300){
+        _resetZoom(oimg);
+        _lastTap = 0;
+        return;
+      }
+      _lastTap = now;
+    }
+  },{passive:false});
+
+  oimg.addEventListener('touchmove', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    touches = Array.from(e.touches);
+    if(touches.length === 2 && _pinchStartDist > 0){
+      // Pinch zoom
+      var dist = getDist(touches[0], touches[1]);
+      var newScale = _pinchStartScale * (dist / _pinchStartDist);
+      _overlayScale = Math.min(Math.max(newScale, 0.5), 5);
+      _setTransform(oimg);
+    } else if(touches.length === 1 && _isDragging && _overlayScale > 1){
+      // Pan (only when zoomed in)
+      _overlayX = touches[0].clientX - _dragStartX;
+      _overlayY = touches[0].clientY - _dragStartY;
+      _setTransform(oimg);
+    }
+  },{passive:false});
+
   oimg.addEventListener('touchend', function(e){
     e.preventDefault();
     e.stopPropagation();
-  }, {passive:false});
+    touches = Array.from(e.touches);
+    if(touches.length === 0){
+      _isDragging = false;
+      _pinchStartDist = 0;
+      // Snap back if zoomed out too much
+      if(_overlayScale < 1){ _resetZoom(oimg); }
+    }
+  },{passive:false});
 }
 
 function invalidate(){
@@ -2235,26 +2305,36 @@ function showPilotItem(id) {
 }
 
 // ══════════════════════════════════════════════════════════════
+// ── IMAGE ZOOM OVERLAY ─────────────────────────────────────
+var _overlayScale = 1, _overlayX = 0, _overlayY = 0;
+var _pinchStartDist = 0, _pinchStartScale = 1;
+var _dragStartX = 0, _dragStartY = 0, _dragLastX = 0, _dragLastY = 0;
+var _isDragging = false, _lastTap = 0;
+
+function _setTransform(img){
+  img.style.transform = 'translate('+_overlayX+'px,'+_overlayY+'px) scale('+_overlayScale+')';
+}
+
+function _resetZoom(img){
+  _overlayScale=1; _overlayX=0; _overlayY=0;
+  _setTransform(img);
+}
+
 function expandImg(src){
   var ov = document.getElementById('img-overlay');
   var oimg = document.getElementById('img-overlay-img');
   oimg.src = src;
+  _resetZoom(oimg);
   ov.classList.add('show');
+  _overlayOpen = true;
   document.body.style.overflow='hidden';
 }
 
 function initZoomListeners(){
-  // Called after modal content is rendered
-  // Use touchend+preventDefault to avoid double-fire on mobile
   document.querySelectorAll('.img-zoomable').forEach(function(wrap){
-    wrap.addEventListener('touchend', function(e){
-      e.preventDefault();
-      e.stopPropagation();
-      var img = wrap.querySelector('img');
-      if(img) expandImg(img.src);
-    }, {passive:false});
-    wrap.addEventListener('click', function(e){
-      e.stopPropagation();
+    addTapListener(wrap, function(e){
+      if(_overlayOpen) return;
+      e.stopPropagation ? e.stopPropagation() : null;
       var img = wrap.querySelector('img');
       if(img) expandImg(img.src);
     });
@@ -2262,6 +2342,7 @@ function initZoomListeners(){
 }
 function closeImgOverlay(){
   document.getElementById('img-overlay').classList.remove('show');
+  _overlayOpen = false;
   document.body.style.overflow='';
 }
 
