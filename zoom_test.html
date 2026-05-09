@@ -3,114 +3,85 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Test Zoom</title>
+<title>Test Zoom v2</title>
 <style>
-body { background:#111; color:white; font-family:sans-serif; padding:20px; }
-.img-wrap { 
-  border:2px solid #444; 
-  border-radius:8px; 
-  overflow:hidden; 
-  margin:10px 0; 
-  cursor:zoom-in;
+body{background:#111;color:white;font-family:sans-serif;padding:20px;margin:0;}
+.img-wrap{border:2px solid #444;border-radius:8px;overflow:hidden;margin:10px 0;}
+.img-wrap img{width:100%;display:block;}
+#overlay{
+  display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,.96);z-index:99999;
+  align-items:center;justify-content:center;touch-action:none;
 }
-.img-wrap img { 
-  width:100%; 
-  display:block; 
-  pointer-events:none; 
+#overlay.open{display:flex;}
+#overlay-img{max-width:95vw;max-height:95vh;object-fit:contain;display:block;}
+#close-btn{
+  position:fixed;top:12px;right:12px;width:48px;height:48px;
+  background:#E8001D;color:white;border:none;border-radius:50%;
+  font-size:26px;z-index:100000;line-height:48px;text-align:center;
 }
-#overlay {
-  display:none;
-  position:fixed;
-  top:0; left:0; right:0; bottom:0;
-  width:100vw;
-  height:100vh;
-  background:rgba(0,0,0,0.96);
-  z-index:99999;
-  align-items:center;
-  justify-content:center;
-}
-#overlay.open { display:flex; }
-#overlay img {
-  max-width:95vw;
-  max-height:95vh;
-  object-fit:contain;
-  border-radius:6px;
-}
-#close-btn {
-  position:fixed;
-  top:12px; right:12px;
-  width:44px; height:44px;
-  background:#E8001D;
-  color:white;
-  border:none;
-  border-radius:50%;
-  font-size:24px;
-  cursor:pointer;
-  z-index:100000;
-}
-#log {
-  background:#222;
-  border:1px solid #444;
-  padding:10px;
-  border-radius:6px;
-  font-size:12px;
-  margin-top:20px;
-  min-height:60px;
-  font-family:monospace;
-}
+#log{background:#222;border:1px solid #444;padding:10px;border-radius:6px;
+  font-size:11px;margin-top:20px;font-family:monospace;white-space:pre-wrap;}
 </style>
 </head>
 <body>
-
-<h2>Test zoom imagen</h2>
-<p>Toca la imagen para ampliar:</p>
-
-<div class="img-wrap" onclick="openZoom(this)">
-  <img src="img/baq_01.jpg" alt="Baquet">
+<h2>Test zoom v2</h2>
+<div class="img-wrap" id="wrap1"><img src="img/baq_01.jpg" alt="Baquet"></div>
+<div class="img-wrap" id="wrap2"><img src="img/arn_01.jpg" alt="Arneses"></div>
+<div id="overlay">
+  <button id="close-btn">X</button>
+  <img id="overlay-img" src="" alt="">
 </div>
-
-<div class="img-wrap" onclick="openZoom(this)">
-  <img src="img/arn_01.jpg" alt="Arneses">
-</div>
-
-<div id="overlay" onclick="closeZoom()">
-  <button id="close-btn" onclick="closeZoom()">✕</button>
-  <img id="overlay-img" src="" alt="zoom" onclick="event.stopPropagation()">
-</div>
-
-<div id="log">Log de eventos...</div>
-
+<div id="log">Log...</div>
 <script>
-function log(msg) {
-  document.getElementById('log').innerHTML += '<br>' + msg;
+var log=document.getElementById('log');
+function L(m){log.textContent+='\n'+m;}
+
+var overlay=document.getElementById('overlay');
+var oimg=document.getElementById('overlay-img');
+var cbtn=document.getElementById('close-btn');
+
+function openZoom(src){
+  L('open: '+src.split('/').pop());
+  oimg.src=src;
+  overlay.classList.add('open');
+  document.body.style.overflow='hidden';
+  L('display:'+window.getComputedStyle(overlay).display);
+}
+function closeZoom(){
+  L('close');
+  overlay.classList.remove('open');
+  document.body.style.overflow='';
 }
 
-function openZoom(divEl) {
-  event.stopPropagation();
-  log('openZoom llamado');
-  var img = divEl.querySelector('img');
-  log('img.src = ' + img.src);
-  var overlay = document.getElementById('overlay');
-  var oimg = document.getElementById('overlay-img');
-  oimg.src = img.src;
-  // Use setTimeout to prevent immediate closeZoom trigger from same touch event
-  setTimeout(function(){
-    overlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    log('overlay clase: ' + overlay.className);
-    log('overlay display: ' + window.getComputedStyle(overlay).display);
-  }, 50);
+// Wrappers: touchend with preventDefault stops subsequent click
+document.querySelectorAll('.img-wrap').forEach(function(w){
+  w.addEventListener('touchend',function(e){
+    e.preventDefault();e.stopPropagation();
+    openZoom(w.querySelector('img').src);
+  },{passive:false});
+  w.addEventListener('click',function(e){
+    e.stopPropagation();
+    openZoom(w.querySelector('img').src);
+  });
+});
 
-}
+// Overlay: close only on background
+overlay.addEventListener('touchend',function(e){
+  e.preventDefault();
+  if(e.target===overlay)closeZoom();
+},{passive:false});
+overlay.addEventListener('click',function(e){if(e.target===overlay)closeZoom();});
 
-function closeZoom() {
-  log('closeZoom llamado');
-  document.getElementById('overlay').classList.remove('open');
-  document.body.style.overflow = '';
-}
+// Close button
+cbtn.addEventListener('touchend',function(e){e.preventDefault();e.stopPropagation();closeZoom();},{passive:false});
+cbtn.addEventListener('click',function(e){e.stopPropagation();closeZoom();});
 
-log('Script cargado OK');
-log('overlay elemento: ' + (document.getElementById('overlay') ? 'OK' : 'NULL'));
+// Image: stop propagation only
+oimg.addEventListener('touchend',function(e){e.preventDefault();e.stopPropagation();},{passive:false});
+
+L('OK');
+L('overlay:'+(overlay?'OK':'NULL'));
 </script>
 </body>
 </html>
