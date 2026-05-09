@@ -329,6 +329,10 @@ body{background:var(--dark);color:var(--text);font-family:var(--font-body);displ
   </div>
 </div>
 
+<div id="img-overlay">
+  <button id="img-overlay-close" style="position:fixed;top:12px;right:12px;background:#E8001D;color:white;border:none;width:44px;height:44px;border-radius:50%;font-size:22px;cursor:pointer;z-index:100000;line-height:1;">✕</button>
+  <img id="img-overlay-img" src="" alt="Diagrama FIA" style="max-width:100%;max-height:85vh;width:auto;height:auto;display:block;border-radius:6px;cursor:default;">
+</div>
 <script>
 // ══════════════════════════════════════════════════════════════
 // NORMATIVA BASE PRE-CARGADA — FUENTES OFICIALES FIA 2026
@@ -2348,9 +2352,6 @@ function closeImgOverlay(){
 
 init();
 </script>
-<div id="img-overlay">
-  <button id="img-overlay-close" style="position:fixed;top:12px;right:12px;background:#E8001D;color:white;border:none;width:44px;height:44px;border-radius:50%;font-size:22px;cursor:pointer;z-index:100000;line-height:1;">✕</button>
-  <img id="img-overlay-img" src="" alt="Diagrama FIA" onclick="event.stopPropagation()" style="max-width:100%;max-height:85vh;width:auto;height:auto;display:block;border-radius:6px;cursor:default;">
-</div>
+
 </body>
 </html>

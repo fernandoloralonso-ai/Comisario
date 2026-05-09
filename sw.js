@@ -2,7 +2,7 @@
 // COMISARIO TÉCNICO PRO — Service Worker
 // Versión del caché — cambiar para forzar actualización
 // ══════════════════════════════════════════════════════════════
-const CACHE_NAME = 'comisario-pro-v2026-4';
+const CACHE_NAME = 'comisario-pro-v2026-5';
 
 // Ficheros que se cachean al instalar (disponibles siempre offline)
 const PRECACHE = [
