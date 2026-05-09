@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Test Zoom</title>
+<style>
+body { background:#111; color:white; font-family:sans-serif; padding:20px; }
+.img-wrap { 
+  border:2px solid #444; 
+  border-radius:8px; 
+  overflow:hidden; 
+  margin:10px 0; 
+  cursor:zoom-in;
+}
+.img-wrap img { 
+  width:100%; 
+  display:block; 
+  pointer-events:none; 
+}
+#overlay {
+  display:none;
+  position:fixed;
+  top:0; left:0; right:0; bottom:0;
+  width:100vw;
+  height:100vh;
+  background:rgba(0,0,0,0.96);
+  z-index:99999;
+  align-items:center;
+  justify-content:center;
+}
+#overlay.open { display:flex; }
+#overlay img {
+  max-width:95vw;
+  max-height:95vh;
+  object-fit:contain;
+  border-radius:6px;
+}
+#close-btn {
+  position:fixed;
+  top:12px; right:12px;
+  width:44px; height:44px;
+  background:#E8001D;
+  color:white;
+  border:none;
+  border-radius:50%;
+  font-size:24px;
+  cursor:pointer;
+  z-index:100000;
+}
+#log {
+  background:#222;
+  border:1px solid #444;
+  padding:10px;
+  border-radius:6px;
+  font-size:12px;
+  margin-top:20px;
+  min-height:60px;
+  font-family:monospace;
+}
+</style>
+</head>
+<body>
+
+<h2>Test zoom imagen</h2>
+<p>Toca la imagen para ampliar:</p>
+
+<div class="img-wrap" onclick="openZoom(this)">
+  <img src="img/baq_01.jpg" alt="Baquet">
+</div>
+
+<div class="img-wrap" onclick="openZoom(this)">
+  <img src="img/arn_01.jpg" alt="Arneses">
+</div>
+
+<div id="overlay" onclick="closeZoom()">
+  <button id="close-btn" onclick="closeZoom()">✕</button>
+  <img id="overlay-img" src="" alt="zoom" onclick="event.stopPropagation()">
+</div>
+
+<div id="log">Log de eventos...</div>
+
+<script>
+function log(msg) {
+  document.getElementById('log').innerHTML += '<br>' + msg;
+}
+
+function openZoom(divEl) {
+  log('openZoom llamado');
+  var img = divEl.querySelector('img');
+  log('img.src = ' + img.src);
+  var overlay = document.getElementById('overlay');
+  var oimg = document.getElementById('overlay-img');
+  oimg.src = img.src;
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  log('overlay clase: ' + overlay.className);
+  log('overlay display: ' + window.getComputedStyle(overlay).display);
+}
+
+function closeZoom() {
+  log('closeZoom llamado');
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+log('Script cargado OK');
+log('overlay elemento: ' + (document.getElementById('overlay') ? 'OK' : 'NULL'));
+</script>
+</body>
+</html>
